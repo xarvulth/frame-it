@@ -6,13 +6,17 @@ Add clean borders to your photos and resize them for Instagram, in your browser.
 
 ## Features
 
-- **Size presets**: Instagram post (4:5, 1080×1350), Square (1:1, 1080×1080), Story (9:16, 1080×1920) and Landscape (1.91:1, 1080×566)
+- **Size presets**: Instagram post (4:5, 1080×1350), Tall (3:4, 1080×1440), Square (1:1, 1080×1080), Story (9:16, 1080×1920) and Landscape (1.91:1, 1080×566)
 - **Border width** as a percentage of the image width, from 0% to 15% in 0.5% steps
 - **Border colors**: white, black, or any custom color
 - **Photo placement**: *Show whole photo* (fit) or *Fill and crop* (fill)
 - **Original**: full size, no resizing, all detail
 - **Export** as JPEG or PNG
 - **Several photos at once**: frame a whole batch with the same settings and save them all in one go
+- **Caption**: your name and camera details under the photo, aligned left, center or right, in Classic, Modern, Mono or Pixel style
+- **Split**: turn one photo into a seamless carousel (2–10 slides) or into 3, 6 or 9 posts that form one big picture on your profile grid
+- **Logo**: add your logo, drag it into place (it snaps to the edges and center), resize it from an edge, hold R to rotate it
+- **Instagram preview**: see your carousel as a post, or your photos on your profile grid, before you post
 - **And a cute kitty**
 
 ## License
