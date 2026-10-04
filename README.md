@@ -1,6 +1,6 @@
 # Frame It
 
-Add clean borders to your photos and resize them for Instagram, right in your browser.
+Add clean borders to your photos and resize them for Instagram, in your browser.
 
 ###  Use it: https://xarvulth.github.io/frame-it/
 
