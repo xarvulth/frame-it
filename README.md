@@ -13,21 +13,6 @@ Add clean borders to your photos and resize them for Instagram, right in your br
 - **Original ratio** (1080 wide), **Original, large** (2048 px long edge) and **Full size** (no resizing, all detail)
 - **Export** as JPEG (92% quality, good for Instagram) or lossless PNG
 
-## How to use
-
-1. Open the [app](https://xarvulth.github.io/frame-it/).
-2. Drop a photo onto the page, or click to choose one (JPEG, PNG or WebP).
-3. Pick a size, border width, border color and placement. The preview updates as you go.
-4. Choose JPEG or PNG and click **Save**. The file downloads to your device.
-
-Your settings are remembered for next time.
-
-## Privacy
-
-- **Your photos never leave your device.** All processing happens in your browser, and nothing is uploaded anywhere.
-- **The only stored data is your settings** (size, border, color, placement and file type), saved in your browser's `localStorage`.
-- **No third-party requests.** No fonts, analytics, trackers or CDNs. The app is a single self-contained HTML file.
-
 ## License
 
 MIT. See [LICENSE](LICENSE).
