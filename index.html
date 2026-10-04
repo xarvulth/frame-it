@@ -34,11 +34,73 @@ body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text)
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45}
 .app{display:grid;grid-template-columns:1fr 320px;height:100%}
 .stage{background:var(--stage);display:flex;align-items:center;justify-content:center;padding:28px;position:relative;min-height:0;overflow:hidden}
-.stage canvas{max-width:100%;max-height:100%;box-shadow:0 12px 44px var(--shadow);display:none}
-.stage.has-img canvas{display:block}
-.stage.zoomed canvas{cursor:grab;touch-action:none}
-.stage.panning canvas{cursor:grabbing}
-.zoombar{position:absolute;left:14px;bottom:14px;z-index:2;display:none;align-items:center;background:var(--panel);color:var(--text);font-size:13px}
+.stage #cv{max-width:100%;max-height:100%;box-shadow:0 12px 44px var(--shadow);display:none}
+.stage.has-img #cv{display:block}
+.stage.zoomed #cv{cursor:grab;touch-action:none}
+.stage.panning #cv{cursor:grabbing}
+.zoombar{position:absolute;left:14px;bottom:14px;z-index:3;display:none;align-items:center;background:var(--panel);color:var(--text);font-size:13px}
+.zoomgroup{display:flex;align-items:center}
+.zoombar .tool{box-shadow:inset 1px 0 0 0 var(--line)}
+.zoombar .tool[aria-pressed="true"]{background:var(--btn);color:var(--btn-ink)}
+.toolpop{position:fixed;inset:auto;margin:0;width:260px;padding:14px;background:var(--panel);color:var(--text);border:0}
+.toolpop:popover-open{display:flex;flex-direction:column;gap:10px}
+.pophead{display:flex;align-items:center;justify-content:space-between;margin:-6px -6px 0 0;cursor:move;user-select:none;touch-action:none}
+.popx{border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;width:28px;height:28px;cursor:pointer}
+.popx:hover{color:var(--text)}
+.toolpop{max-height:calc(100vh - 16px);overflow-x:hidden;overflow-y:auto}
+.toolpop h3{font-size:11px;margin:0;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.toolpop .seg button{padding:6px 4px;font-size:13px}
+.stepper{display:flex;align-items:center;gap:10px;font-size:14px}
+.stepper span{flex:1}
+.stepper button{width:30px;height:28px;border:0;background:transparent;color:var(--text);font:inherit;font-size:18px;cursor:pointer;box-shadow:inset 0 0 0 2px var(--line)}
+.stepper b{min-width:22px;text-align:center}
+.stepper[hidden]{display:none}
+.logobtns{display:flex;gap:10px}
+.logobtns .secondary{flex:1;font-size:14px;padding:8px}
+.logoopts{display:flex;flex-direction:column;gap:10px}
+.logoopts[hidden]{display:none}
+.logoopts .row{font-size:14px;gap:10px}
+.logoopts .row input{min-width:0;margin:0 4px}
+.logoopts .val{min-width:38px}
+.stage.has-logo #cv{touch-action:none}
+.gridview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;padding:60px 20px 64px;overflow:auto}
+.igframe{width:min(380px,100%);margin-top:auto}
+.gridview .gridnote{margin-bottom:auto;text-align:center}
+.igcard{background:var(--panel);color:var(--text);box-shadow:0 0 0 1px var(--line);padding-bottom:12px}
+.ighead{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.igav{width:58px;height:58px;border-radius:50%;background:var(--line);flex:none}
+.igav.sm{width:30px;height:30px}
+.igmore{margin-left:auto;color:var(--muted);font-size:12px;letter-spacing:1px}
+.igbar{display:block;height:8px;background:var(--line);margin:8px 12px 0}
+.igbar.sm{height:6px}
+.ighead .igbar,.igstats .igbar{margin:0}
+.igstats .igbar.sm{margin-top:6px}
+.igmediawrap{position:relative}
+.igmedia{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:#000}
+.igmedia::-webkit-scrollbar{display:none}
+.igmedia canvas{flex:0 0 100%;width:100%;height:100%;display:block;scroll-snap-align:start}
+.ignav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.85);color:#222;font-size:18px;line-height:1;cursor:pointer}
+.ignav.prev{left:8px}.ignav.next{right:8px}.ignav[hidden]{display:none}
+.igcount{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;font:600 12px system-ui,sans-serif;padding:3px 8px;border-radius:10px}
+.igactions{position:relative;display:flex;align-items:center;gap:14px;padding:10px 12px 2px}
+.igi{width:24px;height:24px;flex:none}
+.igi.right{margin-left:auto}
+.igdots{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.igdots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.igdots i.on{background:var(--accent)}
+.igprof .igtop{display:flex;align-items:center;gap:20px;padding:14px 12px 6px}
+.igstats{display:flex;flex:1;justify-content:space-around}
+.igstats span{display:flex;flex-direction:column;align-items:center}
+.igtabs{display:flex;justify-content:center;margin-top:12px;padding:10px 0 8px;box-shadow:inset 0 1px 0 var(--line)}
+.igprof .gridtiles{width:100%}
+.gridview[hidden]{display:none}
+.gridnote{margin:0;font-size:12px;color:var(--deep-muted)}
+.gridtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:min(420px,100%)}
+.gridtiles .tile{position:relative;aspect-ratio:3/4;background:color-mix(in srgb,var(--deep-ink) 10%,transparent);overflow:hidden}
+.gridtiles canvas{width:100%;height:100%;display:block;box-shadow:none!important}
+.gridtiles .tile b{position:absolute;z-index:2;left:5px;top:5px;font:700 11px/1 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.55);padding:3px 5px}
+.gridtiles .old{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--deep-ink) 8%,transparent) 0 6px,transparent 6px 12px)}
+.stage.grid-on #cv{visibility:hidden}
 .stage.has-img .zoombar{display:flex}
 .zoombar button{border:0;background:transparent;color:inherit;font:inherit;min-width:30px;height:28px;padding:0 8px;cursor:pointer}
 .zoombar button:hover{background:color-mix(in srgb,var(--btn) 14%,transparent)}
@@ -110,7 +172,9 @@ button:focus-visible,input:focus-visible,.drop:focus-visible{outline:2px solid v
   .presets::-webkit-scrollbar{display:none}
   .chip{flex:none}
   .info{font-size:12px}
-  .zoombar{display:none!important}
+  .zoomgroup{display:none}
+  .zoombar{left:10px;bottom:10px}
+  .stage.has-img{padding-bottom:52px}
   .stage.batch{padding-top:56px}
   .batchbar{left:10px;transform:none;max-width:calc(100% - 64px)}
 }
@@ -122,7 +186,7 @@ button:focus-visible,input:focus-visible,.drop:focus-visible{outline:2px solid v
 :root[data-theme="dark"]{--px-edge:#6e4a3c}
 
 /* Pixel borders: four offset shadows leave the corners notched, like 8-bit UI */
-.chip,.seg,.secondary,.save,.sw,.picker,.pc,.palette,.gear,.settings,.tchip,.zoombar,.batchbar{
+.chip,.seg,.secondary,.save,.sw,.picker,.pc,.palette,.gear,.settings,.tchip,.zoombar,.batchbar,.toolpop{
   --px-border:0 calc(-1*var(--px)) 0 0 var(--px-edge),0 var(--px) 0 0 var(--px-edge),calc(-1*var(--px)) 0 0 0 var(--px-edge),var(--px) 0 0 0 var(--px-edge);
   border:0;border-radius:0;box-shadow:var(--px-border)}
 .chip{margin:var(--px)}
@@ -136,7 +200,7 @@ button:focus-visible,input:focus-visible,.drop:focus-visible{outline:2px solid v
 .actions{margin-left:var(--px);margin-right:var(--px);gap:12px}
 .sw,.picker{width:26px;height:26px;margin:var(--px)}
 .sw[aria-pressed="true"],.picker.active{outline:2px solid var(--accent);outline-offset:5px}
-.palette{box-shadow:var(--px-border),8px 8px 0 0 var(--shadow)}
+.palette,.toolpop{box-shadow:var(--px-border),8px 8px 0 0 var(--shadow)}
 .pc{--px:2px;margin:2px}
 .pc[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:4px}
 button:focus-visible,input:focus-visible,.drop:focus-visible{outline-offset:5px}
@@ -148,7 +212,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 input[type=range]::-moz-range-progress{height:6px;background:var(--accent)}
 
 /* Photo stage */
-.stage canvas{position:relative;z-index:1;box-shadow:8px 8px 0 0 rgba(0,0,0,.35)}
+.stage #cv{position:relative;z-index:1;box-shadow:8px 8px 0 0 rgba(0,0,0,.35)}
 .drop{position:relative;z-index:1;border:3px dashed var(--drop-line);border-radius:0;background:color-mix(in srgb,var(--deep) 55%,transparent)}
 
 /* Season icons */
@@ -215,6 +279,10 @@ aside{position:relative}
 .ticon{width:14px;height:14px;flex:none;background:center/contain no-repeat;image-rendering:pixelated}
 .settings .seg button{padding:5px;font-size:13px}
 .metanote{margin:0;font-size:12px;line-height:1.35;color:var(--muted)}
+.capname{width:calc(100% - 6px);margin:0 3px;padding:7px 9px;border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;box-shadow:inset 0 0 0 2px var(--line)}
+.capname:focus{outline:2px solid var(--accent);outline-offset:2px}
+.settings .capfont button{font-size:12px;padding:5px 2px}
+.pixelbtn{font-family:monospace!important;font-weight:700;letter-spacing:.06em;text-transform:uppercase;image-rendering:pixelated}
 @media (min-width:821px) and (max-height:640px){ .gear{top:8px} }
 @media (max-width:820px){ .gear{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px} }
 </style>
@@ -347,12 +415,46 @@ darkQuery.addEventListener("change", applyTheme);
       <button id="nextPhoto" aria-label="Next photo">›</button>
     </div>
     <canvas id="cv" aria-label="Preview"></canvas>
-    <div class="zoombar" title="Ctrl + scroll to zoom, drag to move, double-click for 100%">
-      <button id="zout" aria-label="Zoom out">−</button>
-      <span id="zlevel" aria-live="polite">100%</span>
-      <button id="zin" aria-label="Zoom in">+</button>
-      <button id="zfit">Fit</button>
-      <button id="z100">100%</button>
+    <div class="gridview" id="gridview" hidden>
+      <div class="igframe" id="igframe"></div>
+      <p class="gridnote" id="gridnote"></p>
+    </div>
+    <div class="zoombar">
+      <span class="zoomgroup" title="Ctrl + scroll to zoom, drag to move, double-click for 100%">
+        <button id="zout" aria-label="Zoom out">−</button>
+        <span id="zlevel" aria-live="polite">100%</span>
+        <button id="zin" aria-label="Zoom in">+</button>
+        <button id="zfit">Fit</button>
+        <button id="z100">100%</button>
+      </span>
+      <button class="tool" id="tGrid" aria-pressed="false" title="Preview on Instagram: your profile grid, or the post itself for a carousel">Grid</button>
+      <button class="tool" id="tCaption" aria-pressed="false" title="Camera info under the photo (edit it in ⚙ settings)">Caption</button>
+      <button class="tool" id="tSplit" popovertarget="splitPop" title="Split a wide photo into a carousel or grid posts">Split</button>
+      <button class="tool" id="tLogo" popovertarget="logoPop" title="Add your logo or signature">Logo</button>
+    </div>
+    <div class="toolpop" id="splitPop" popover="manual" role="dialog" aria-label="Split">
+      <div class="pophead"><h3>Split the photo</h3><button class="popx" aria-label="Close">×</button></div>
+      <div class="seg" id="splitMode">
+        <button data-v="off">Off</button><button data-v="carousel">Carousel</button><button data-v="grid">Profile grid</button>
+      </div>
+      <div class="stepper" id="splitCount">
+        <span id="splitLabel">Slides</span>
+        <button data-d="-1" aria-label="Fewer">−</button><b id="splitNum">3</b><button data-d="1" aria-label="More">+</button>
+      </div>
+      <p class="metanote" id="splitNote"></p>
+    </div>
+    <div class="toolpop" id="logoPop" popover="manual" role="dialog" aria-label="Logo">
+      <div class="pophead"><h3>Logo</h3><button class="popx" aria-label="Close">×</button></div>
+      <div class="logobtns">
+        <button class="secondary" id="logoPick">Choose logo…</button>
+        <button class="secondary" id="logoRemove" hidden>Remove</button>
+      </div>
+      <input type="file" id="logoFile" accept="image/png,image/webp,image/svg+xml,image/jpeg" hidden>
+      <div class="logoopts" id="logoOpts" hidden>
+        <label class="row">Opacity <input type="range" id="logoOpacity" min="20" max="100" step="5"><span class="val" id="logoOpacityV"></span></label>
+        <div class="seg" id="logoTone"><button data-v="original">Original colors</button><button data-v="auto">Auto light/dark</button></div>
+      </div>
+      <p class="metanote">On the photo: drag to move (it snaps to the edges and center), drag an edge or corner to resize, hold <b>R</b> and drag to rotate. Landscape and portrait photos each remember their own spot.</p>
     </div>
     <div class="palette" id="palette" popover role="dialog" aria-label="More colors"></div>
     <input type="file" id="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
@@ -419,6 +521,7 @@ darkQuery.addEventListener("change", applyTheme);
 <script>
 const PRESETS = [
   {id:"post", name:"Instagram post", sub:"4:5 · 1080×1350", w:1080, h:1350},
+  {id:"tall", name:"Tall", sub:"3:4 · 1080×1440", w:1080, h:1440},
   {id:"square", name:"Square", sub:"1:1 · 1080×1080", w:1080, h:1080},
   {id:"story", name:"Story", sub:"9:16 · 1080×1920", w:1080, h:1920},
   {id:"land", name:"Landscape", sub:"1.91:1 · 1080×566", w:1080, h:566},
@@ -426,14 +529,24 @@ const PRESETS = [
 ];
 const FREE = ["original"];
 
-const state = { preset:"post", bw:3, color:"#ffffff", mode:"fit", fmt:"jpg", meta:"nogps", img:null, name:"photo", files:[], index:0, profile:"" };
+const state = { preset:"post", bw:3, color:"#ffffff", mode:"fit", fmt:"jpg", meta:"nogps", img:null, name:"photo", files:[], index:0, profile:"",
+  caption:{ on:false, name:"", camera:true, lens:false, settings:true, align:"center", font:"classic" },
+  split:{ mode:"off", slides:3, rows:1 },
+  logo:{ size:0.18, opacity:0.9, tone:"auto", angle:0, place:{ land:null, port:null } },
+  gridView:false };
 try{
   const saved = JSON.parse(localStorage.getItem("frameit-settings")||"null");
-  if(saved){ Object.assign(state, {preset:saved.preset||state.preset, bw:saved.bw ?? state.bw, color:saved.color||state.color, mode:saved.mode||state.mode, fmt:saved.fmt||state.fmt}); if(["keep","nogps","none"].includes(saved.meta)) state.meta = saved.meta; }
+  if(saved){
+    Object.assign(state, {preset:saved.preset||state.preset, bw:saved.bw ?? state.bw, color:saved.color||state.color, mode:saved.mode||state.mode, fmt:saved.fmt||state.fmt});
+    if(["keep","nogps","none"].includes(saved.meta)) state.meta = saved.meta;
+    if(saved.caption) Object.assign(state.caption, saved.caption);
+    if(saved.split && ["off","carousel","grid"].includes(saved.split.mode)) Object.assign(state.split, saved.split);
+    if(saved.logo){ Object.assign(state.logo, saved.logo); state.logo.place = { land:null, port:null, ...saved.logo.place }; }
+  }
 }catch(e){}
 if(["orig","origL","full"].includes(state.preset)) state.preset = "original";
 if(!PRESETS.some(p => p.id===state.preset)) state.preset = "post";
-function persist(){ try{ localStorage.setItem("frameit-settings", JSON.stringify({preset:state.preset,bw:state.bw,color:state.color,mode:state.mode,fmt:state.fmt,meta:state.meta})); }catch(e){} }
+function persist(){ try{ localStorage.setItem("frameit-settings", JSON.stringify({preset:state.preset,bw:state.bw,color:state.color,mode:state.mode,fmt:state.fmt,meta:state.meta,caption:state.caption,split:state.split,logo:state.logo})); }catch(e){} }
 
 const $ = id => document.getElementById(id);
 const cv = $("cv"), ctx = cv.getContext("2d");
@@ -473,50 +586,245 @@ palette.addEventListener("toggle", e => {
 document.querySelectorAll("#mode button").forEach(b => b.onclick = () => { state.mode = b.dataset.m; sync(); });
 document.querySelectorAll("#fmt button").forEach(b => b.onclick = () => { state.fmt = b.dataset.f; sync(); });
 
+// The output: one image, or a panorama split into carousel slides / profile-grid posts.
+// Borders go only around the outside, so split pieces line up seamlessly. The caption makes the
+// bottom border taller (on the last slide when split).
 function computeLayout(iw0 = state.iw, ih0 = state.ih){
-  const p = PRESETS.find(x=>x.id===state.preset);
-  let W, H, b;
-  if(p.id==="original"){
-    // keep the photo at its exact pixel size; border is bw% of the final width
-    const pct = state.bw/100;
-    b = Math.round(iw0*pct/(1-2*pct));
-    W = iw0 + 2*b; H = ih0 + 2*b;
-  } else {
-    W = p.w; H = p.h; b = Math.round(W*state.bw/100);
+  const p = PRESETS.find(x=>x.id===state.preset), sp = state.split;
+  const capFor = (w, h) => state.caption.on ? Math.round(Math.min(w, h*1.25) * 0.075) : 0;
+  let cols = 1, rows = 1, sw = p.w, sh = p.h;
+  if(sp.mode === "carousel"){ cols = sp.slides; if(!p.w){ sw = 1080; sh = 1350; } }
+  else if(sp.mode === "grid"){ rows = sp.rows; cols = 3; sw = 1080; sh = 1440; }   // grid shows 3:4 posts uncropped
+  if(sw){
+    const W = sw*cols, H = sh*rows, b = Math.round(sw*state.bw/100), capH = capFor(sw, sh), bb = b + capH;
+    return { W, H, b, bb, capH, cols, rows, sw, sh, box:{ x:b, y:b, w:W-2*b, h:H-b-bb } };
   }
-  return {W,H,b};
+  // Original: the photo keeps its exact pixel size; border is bw% of the final width
+  const pct = state.bw/100, b = Math.round(iw0*pct/(1-2*pct)), W = iw0 + 2*b, capH = capFor(W, ih0 + 2*b), bb = b + capH;
+  return { W, H: ih0 + b + bb, b, bb, capH, cols:1, rows:1, sw:W, sh:ih0 + b + bb, box:{ x:b, y:b, w:iw0, h:ih0 } };
+}
+const pieceCount = L => L.cols * L.rows;
+// Where the photo lands inside the border box (fit shows it whole, fill crops it)
+function photoRect(iw, ih, L){
+  const B = L.box, k = state.mode === "fit" ? Math.min(B.w/iw, B.h/ih) : Math.max(B.w/iw, B.h/ih);
+  const w = iw*k, h = ih*k, x = B.x + (B.w - w)/2;
+  let y = B.y + (B.h - h)/2, capTop = L.H - L.bb;
+  // With spare room above and below, keep the caption right under the photo and center them together
+  if(L.capH && h < B.h){ y = (L.H - h - L.capH)/2; capTop = y + h; }
+  const vx = Math.max(x, B.x), vy = Math.max(y, B.y);                // the part you actually see
+  return { x, y, w, h, capTop, vis:{ x:vx, y:vy, w:Math.min(x + w, B.x + B.w) - vx, h:Math.min(y + h, B.y + B.h) - vy } };
 }
 
 // Draws the framed photo onto any canvas: the preview, or a fresh one when saving
-function drawFrame(g, src, iw, ih, {W,H,b}){
-  g.fillStyle = state.color; g.fillRect(0,0,W,H);
-  const bx = W-2*b, by = H-2*b;
-  const scale = state.mode==="fit" ? Math.min(bx/iw, by/ih) : Math.max(bx/iw, by/ih);
-  const dw = iw*scale, dh = ih*scale;
-  const dx = b + (bx-dw)/2, dy = b + (by-dh)/2;
+function drawFrame(g, src, iw, ih, L, opts = {}){
+  g.fillStyle = state.color; g.fillRect(0, 0, L.W, L.H);
+  const R = photoRect(iw, ih, L), B = L.box;
   g.save();
-  g.beginPath(); g.rect(b,b,bx,by); g.clip();
+  g.beginPath(); g.rect(B.x, B.y, B.w, B.h); g.clip();
   g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
-  g.drawImage(src, dx, dy, dw, dh);
+  g.drawImage(src, R.x, R.y, R.w, R.h);
   g.restore();
+  if(L.capH && opts.cam) drawCaption(g, L, captionText(opts.cam), R);
+  return logoImg ? drawLogo(g, R.vis, iw >= ih) : null;
+}
+
+// ----- Caption: camera info in the bottom border. Its color follows the border, so it always reads well.
+const SERIF = '"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif';
+const SANS = 'system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+const MONO = 'ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace';
+const CAPTION_FONTS = {
+  classic: { title: s => `600 ${s}px ${SERIF}`, details: s => `500 ${s}px ${SANS}`, track:[0.04, 0.06] },
+  modern:  { title: s => `600 ${s}px ${SANS}`, details: s => `400 ${s}px ${SANS}`, track:[0.24, 0.1], upper:true },
+  mono:    { title: s => `600 ${s}px ${MONO}`, details: s => `400 ${s}px ${MONO}`, track:[0.02, 0.02] },
+  pixel:   { pixel:true }
+};
+// A tiny 5×7 pixel alphabet, drawn square by square (no font files, so still no outside requests)
+const PIXEL_FONT = (() => {
+  const g = {
+    A:".XXX.X...XX...XXXXXXX...XX...XX...X", B:"XXXX.X...XX...XXXXX.X...XX...XXXXX.", C:".XXX.X...XX....X....X....X...X.XXX.",
+    D:"XXXX.X...XX...XX...XX...XX...XXXXX.", E:"XXXXXX....X....XXXX.X....X....XXXXX", F:"XXXXXX....X....XXXX.X....X....X....",
+    G:".XXX.X...XX....X.XXXX...XX...X.XXXX", H:"X...XX...XX...XXXXXXX...XX...XX...X", I:".XXX...X....X....X....X....X...XXX.",
+    J:"..XXX...X....X....X....X.X..X..XX..", K:"X...XX..X.X.X..XX...X.X..X..X.X...X", L:"X....X....X....X....X....X....XXXXX",
+    M:"X...XXX.XXX.X.XX.X.XX...XX...XX...X", N:"X...XX...XXX..XX.X.XX..XXX...XX...X", O:".XXX.X...XX...XX...XX...XX...X.XXX.",
+    P:"XXXX.X...XX...XXXXX.X....X....X....", Q:".XXX.X...XX...XX...XX.X.XX..X..XX.X", R:"XXXX.X...XX...XXXXX.X.X..X..X.X...X",
+    S:".XXXXX....X.....XXX.....X....XXXXX.", T:"XXXXX..X....X....X....X....X....X..", U:"X...XX...XX...XX...XX...XX...X.XXX.",
+    V:"X...XX...XX...XX...XX...X.X.X...X..", W:"X...XX...XX...XX.X.XX.X.XX.X.X.X.X.", X:"X...XX...X.X.X...X...X.X.X...XX...X",
+    Y:"X...XX...X.X.X...X....X....X....X..", Z:"XXXXX....X...X...X...X...X....XXXXX",
+    0:".XXX.X...XX..XXX.X.XXX..XX...X.XXX.", 1:"..X...XX....X....X....X....X...XXX.", 2:".XXX.X...X....X...X...X...X...XXXXX",
+    3:"XXXX.....X....X.XXX.....X....XXXXX.", 4:"...X...XX..X.X.X..X.XXXXX...X....X.", 5:"XXXXXX....XXXX.....X....XX...X.XXX.",
+    6:"..XX..X...X....XXXX.X...XX...X.XXX.", 7:"XXXXX....X...X...X...X....X....X...", 8:".XXX.X...XX...X.XXX.X...XX...X.XXX.",
+    9:".XXX.X...XX...X.XXXX....X...X..XX..",
+    "?":".XXX.X...X....X...X...X.........X..", "&":".XX..X..X.X.X...X...X.X.XX..X..XX.X",
+    "+":[".....","..X..","..X..","XXXXX","..X..","..X..","....."], "#":".X.X..X.X.XXXXX.X.X.XXXXX.X.X..X.X.",
+    "@":".XXX.X...XX.XXXX.X.XX.XXXX.....XXXX", "/":["....X","...X.","...X.","..X..",".X...",".X...","X...."], "_":"..............................XXXXX",
+    " ":["...","...","...","...","...","...","..."], ".":[".",".",".",".",".",".","X"], "·":[".",".",".","X",".",".","."],
+    ":":[".","X",".",".",".","X","."], "!":["X","X","X","X","X",".","X"], "'":["X","X",".",".",".",".","."],
+    ",":["..","..","..","..","..",".X","X."], "-":["....","....","....","XXXX","....","....","...."],
+    "(":["..X",".X.","X..","X..","X..",".X.","..X"], ")":["X..",".X.","..X","..X","..X",".X.","X.."]
+  };
+  for(const k in g) if(typeof g[k] === "string") g[k] = g[k].match(/.{5}/g);
+  return g;
+})();
+const pixelText = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
+const pixelGlyph = ch => PIXEL_FONT[ch] || PIXEL_FONT["?"];
+const pixelUnits = t => [...pixelText(t)].reduce((n, ch) => n + pixelGlyph(ch)[0].length + 1, -1);
+function drawPixelText(g, t, x, y, p){
+  let cx = 0;
+  for(const ch of pixelText(t)){
+    const rows = pixelGlyph(ch);
+    rows.forEach((row, ry) => [...row].forEach((c, rx) => { if(c === "X") g.fillRect(x + (cx + rx)*p, y + ry*p, p, p); }));
+    cx += rows[0].length + 1;
+  }
+}
+function captionText(cam){
+  const c = state.caption, name = c.name.trim();
+  const parts = [name && c.camera && cam.camera, c.lens && cam.lens, c.settings && cam.settings].filter(Boolean);
+  return { title: name || (c.camera && cam.camera) || "", details: parts.join("  ·  ") };
+}
+function borderInk(){
+  const n = parseInt(state.color.slice(1), 16), lum = (0.299*(n>>16) + 0.587*(n>>8&255) + 0.114*(n&255)) / 255;
+  return lum > 0.55 ? ["rgba(28,22,20,.9)", "rgba(28,22,20,.62)"] : ["rgba(255,255,255,.94)", "rgba(255,255,255,.68)"];
+}
+function drawCaption(g, L, { title, details }, R){
+  if(!title && !details) return;
+  const f = CAPTION_FONTS[state.caption.font] || CAPTION_FONTS.classic, align = state.caption.align, V = R.vis, inks = borderInk();
+  if(f.upper){ title = title.toUpperCase(); details = details.toUpperCase(); }
+  const maxW = Math.max(V.w, L.sw - 2*L.b) - L.capH*0.3;
+  const lines = [title && { text:title, size:L.capH*0.34, i:0 }, details && { text:details, size:L.capH*(f.pixel ? 0.2 : 0.235), i:1 }].filter(Boolean);
+  const measure = l => {
+    if(f.pixel){ l.p = Math.max(1, Math.floor(l.size/7)); l.size = l.p*7; return pixelUnits(l.text)*l.p; }
+    g.font = f[l.i ? "details" : "title"](l.size);
+    if("letterSpacing" in g) g.letterSpacing = `${l.size*f.track[l.i]}px`;
+    return g.measureText(l.text).width;
+  };
+  for(const l of lines){ l.w = measure(l); if(l.w > maxW){ l.size *= maxW/l.w; l.w = measure(l); } }
+  const gap = L.capH*0.12, blockH = lines.reduce((h, l) => h + l.size, 0) + gap*(lines.length - 1), blockW = Math.max(...lines.map(l => l.w));
+  const band = L.capH + (R.capTop === L.H - L.bb ? L.b*0.35 : 0);
+  // Line up with the photo's left edge, center or right edge
+  let x0 = align === "left" ? V.x : align === "right" ? V.x + V.w - blockW : V.x + (V.w - blockW)/2;
+  x0 = Math.min(Math.max(x0, L.b), L.W - L.b - blockW);
+  // Split photos keep this exact spot too: a centered caption spans the join and lines up when you swipe
+  let y = R.capTop + (band - blockH)/2;
+  g.save(); g.textAlign = "left"; g.textBaseline = "top";
+  for(const l of lines){
+    const lx = align === "left" ? x0 : align === "right" ? x0 + blockW - l.w : x0 + (blockW - l.w)/2;
+    g.fillStyle = inks[l.i];
+    if(f.pixel) drawPixelText(g, l.text, Math.round(lx), Math.round(y), l.p);
+    else { measure(l); g.fillText(l.text, lx, y); }
+    y += l.size + gap;
+  }
+  g.restore();
+}
+
+// ----- Logo: placed relative to the visible photo (not the border), with a magnet for edges and center.
+// Landscape and portrait photos each remember their own spot, so mixed batches stay consistent.
+let logoImg = null;
+const LOGO_MARGIN = 0.04, DEFAULT_PLACE = { ax:1, ox:LOGO_MARGIN, ay:1, oy:LOGO_MARGIN };   // bottom right
+const placeFor = land => state.logo.place[land ? "land" : "port"] || state.logo.place[land ? "port" : "land"] || DEFAULT_PLACE;
+function logoRect(R, land){
+  const P = placeFor(land), S = Math.min(R.w, R.h), w = state.logo.size*S, h = w*logoImg.height/logoImg.width;
+  const pos = (a, o, start, len, size) => a < 0 ? start + o*S : a > 0 ? start + len - size - o*S : start + (len - size)/2 + o*S;
+  return { x: pos(P.ax, P.ox, R.x, R.w, w), y: pos(P.ay, P.oy, R.y, R.h, h), w, h };
+}
+function placeFromRect(rect, R, snap){
+  const S = Math.min(R.w, R.h), m = LOGO_MARGIN*S;
+  const axis = (pos, size, start, len) => {
+    const g0 = pos - start, g1 = start + len - (pos + size), c = pos + size/2 - (start + len/2);
+    if(Math.abs(c) < snap) return { a:0, o:0, guide:start + len/2 };                 // magnet: center
+    if(Math.abs(g0 - m) < snap) return { a:-1, o:LOGO_MARGIN, guide:start + m };      // magnet: edge margin
+    if(Math.abs(g1 - m) < snap) return { a:1, o:LOGO_MARGIN, guide:start + len - m };
+    if(Math.abs(c) < Math.min(g0, g1)) return { a:0, o:c/S };
+    return g0 < g1 ? { a:-1, o:g0/S } : { a:1, o:g1/S };
+  };
+  const X = axis(rect.x, rect.w, R.x, R.w), Y = axis(rect.y, rect.h, R.y, R.h);
+  return { place:{ ax:X.a, ox:X.o, ay:Y.a, oy:Y.o }, guides:{ x:X.guide, y:Y.guide } };
+}
+function drawLogo(g, R, land){
+  const r = logoRect(R, land), m = g.getTransform();
+  let ink = null;
+  if(state.logo.tone === "auto"){                                     // light logo on dark spots, dark on light
+    const sx = Math.max(0, Math.round(m.a*r.x + m.e)), sy = Math.max(0, Math.round(m.d*r.y + m.f));
+    const sw = Math.max(1, Math.round(m.a*r.w)), sh = Math.max(1, Math.round(m.d*r.h));
+    const d = g.getImageData(sx, sy, sw, sh).data, step = 4*Math.max(1, Math.floor(d.length/4/4000));
+    let sum = 0, n = 0;
+    for(let i = 0; i < d.length; i += step){ sum += 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2]; n++; }
+    ink = sum/n/255 > 0.55 ? "#141414" : "#ffffff";
+  }
+  const tw = Math.max(1, Math.round(m.a*r.w)), th = Math.max(1, Math.round(m.d*r.h)), t = document.createElement("canvas");
+  t.width = tw; t.height = th;
+  const tg = t.getContext("2d"); tg.imageSmoothingQuality = "high"; tg.drawImage(logoImg, 0, 0, tw, th);
+  if(ink){ tg.globalCompositeOperation = "source-in"; tg.fillStyle = ink; tg.fillRect(0, 0, tw, th); }
+  g.save(); g.globalAlpha = state.logo.opacity;
+  g.translate(r.x + r.w/2, r.y + r.h/2); g.rotate(state.logo.angle*Math.PI/180);
+  g.drawImage(t, -r.w/2, -r.h/2, r.w, r.h);
+  g.restore();
+  return r;
 }
 
 // The preview never needs more than 16 MP (more than any screen shows, and iPhone/iPad Safari's canvas
 // limit). Saved files are still made at full size.
 const PREVIEW_MAX_PX = 16e6;
-const scaleLayout = (L, s) => s >= 1 ? L : { W: Math.round(L.W*s), H: Math.round(L.H*s), b: Math.round(L.b*s) };
+let guides = null;   // magnet lines shown while dragging the logo
 function render(){
   if(!state.img) return;
-  const L = computeLayout(), {W,H,b} = L, P = scaleLayout(L, Math.sqrt(PREVIEW_MAX_PX / (W*H)));
+  const L = computeLayout(), {W,H,b} = L, s = Math.min(1, Math.sqrt(PREVIEW_MAX_PX / (W*H)));
   const resized = state.outW !== W || state.outH !== H;
-  state.outW = W; state.outH = H;
-  cv.width = P.W; cv.height = P.H;
-  drawFrame(ctx, previewSource(), state.iw, state.ih, P);
+  state.outW = W; state.outH = H; state.layout = L;
+  cv.width = Math.round(W*s); cv.height = Math.round(H*s);
+  ctx.setTransform(cv.width/W, 0, 0, cv.height/H, 0, 0);
+  state.logoRect = drawFrame(ctx, previewSource(), state.iw, state.ih, L, { cam: state.preview.cam });
+  drawPreviewMarks(L);
+  const n = pieceCount(L), kind = state.fmt==="png" ? "PNG" : "JPEG";
   const big = W*H > 16e6 ? " · large file, may take a moment" : "";
   const profile = state.profile ? ` · ${state.profile}` : "";
-  $("info").textContent = `${W} × ${H} px · border ${b} px · ${state.fmt==="png"?"PNG":"JPEG"}${profile}${big}`;
+  $("info").textContent = n > 1
+    ? `${n} ${state.split.mode === "grid" ? "posts" : "slides"} · ${L.sw} × ${L.sh} px each · ${kind}${profile}`
+    : `${W} × ${H} px · border ${b} px · ${kind}${profile}${big}`;
+  if(state.gridView) scheduleGrid();
   if(resized) resetView(); else showZoom();
 }
+// Preview only (never saved): where split pieces meet, their order, and the logo magnet lines
+function drawPreviewMarks(L){
+  const u = L.W / (cv.offsetWidth || cv.width);                      // one screen pixel in layout units
+  ctx.save();
+  if(pieceCount(L) > 1){
+    ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 2*u; ctx.setLineDash([10*u, 8*u]);
+    ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 3*u;
+    for(let c = 1; c < L.cols; c++){ ctx.beginPath(); ctx.moveTo(c*L.sw, 0); ctx.lineTo(c*L.sw, L.H); ctx.stroke(); }
+    for(let r = 1; r < L.rows; r++){ ctx.beginPath(); ctx.moveTo(0, r*L.sh); ctx.lineTo(L.W, r*L.sh); ctx.stroke(); }
+    ctx.setLineDash([]); ctx.shadowBlur = 0;
+    const fs = 13*u;
+    ctx.font = `700 ${fs}px ${SANS}`; ctx.textBaseline = "middle"; ctx.textAlign = "center";
+    for(let k = 0; k < pieceCount(L); k++){
+      const { x, y } = piecePos(L, k), label = String(pieceOrder(L, k));
+      ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fillRect(x + fs*0.6, y + fs*0.6, fs*1.6, fs*1.6);
+      ctx.fillStyle = "#fff"; ctx.fillText(label, x + fs*1.4, y + fs*1.42);
+    }
+  }
+  const G = logoGeom();
+  if(G && state.logoSel){                                             // selected logo: outline, corner handles, rotate handle
+    const acc = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c47a52";
+    const pts = [[-1,-1],[1,-1],[1,1],[-1,1]].map(([sx, sy]) => G.toWorld(sx*G.q.w/2, sy*G.q.h/2));
+    const top = G.toWorld(0, -G.q.h/2), knob = G.toWorld(0, -G.q.h/2 - 26*u);
+    ctx.strokeStyle = acc; ctx.lineWidth = 2*u; ctx.setLineDash([5*u, 4*u]);
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+    ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(knob.x, knob.y); ctx.stroke();
+    ctx.fillStyle = "#fff";
+    for(const p of pts){ ctx.fillRect(p.x - 5*u, p.y - 5*u, 10*u, 10*u); ctx.strokeRect(p.x - 5*u, p.y - 5*u, 10*u, 10*u); }
+    ctx.beginPath(); ctx.arc(knob.x, knob.y, 6*u, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+  }
+  if(guides){
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--accent"); ctx.lineWidth = 2*u; ctx.setLineDash([6*u, 5*u]);
+    const B = L.box;
+    if(guides.x !== undefined){ ctx.beginPath(); ctx.moveTo(guides.x, B.y); ctx.lineTo(guides.x, B.y + B.h); ctx.stroke(); }
+    if(guides.y !== undefined){ ctx.beginPath(); ctx.moveTo(B.x, guides.y); ctx.lineTo(B.x + B.w, guides.y); ctx.stroke(); }
+  }
+  ctx.restore();
+}
+// Piece k (left to right, top to bottom). Carousel: swipe order. Grid: Instagram puts the newest post
+// top-left, so the bottom-right piece must be posted first.
+const piecePos = (L, k) => ({ x: (k % L.cols)*L.sw, y: Math.floor(k / L.cols)*L.sh });
+const pieceOrder = (L, k) => state.split.mode === "grid" ? pieceCount(L) - k : k + 1;
 
 function sync(){
   document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.id===state.preset));
@@ -534,9 +842,10 @@ function sync(){
   const p = PRESETS.find(x=>x.id===state.preset);
   document.querySelector("#mode").style.opacity = FREE.includes(p.id) ? .45 : 1;
   document.querySelectorAll("#fmt button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f===state.fmt));
-  const n = state.files.length, kind = state.fmt==="png" ? "PNG" : "JPEG";
-  $("save").textContent = n > 1 ? `Save ${n} ${kind}s` : `Save ${kind}`;
-  $("another").textContent = n > 1 ? "Other photos" : "Use another photo";
+  const n = state.files.length, kind = state.fmt==="png" ? "PNG" : "JPEG", total = n * pieceCount(computeLayout(state.iw || 1000, state.ih || 1000));
+  $("save").textContent = total > 1 ? `Save ${total} ${kind}s` : `Save ${kind}`;
+  syncTools();
+  $("another").textContent = n > 1 ? "Other photos" : total > 1 ? "Other photo" : "Use another photo";
   persist(); render();
 }
 
@@ -548,6 +857,8 @@ function loadFiles(list){
     return;
   }
   for(const f of [...previews.keys()]) forgetPreview(f);
+  for(const t of thumbs.values()) t.then(x => x.bmp.close(), () => {});
+  thumbs.clear();
   state.files = files;
   showPhoto(0, skipped ? `Skipped ${skipped} file${skipped > 1 ? "s" : ""} that ${skipped > 1 ? "aren't" : "isn't"} JPEG, PNG or WebP.` : "");
 }
@@ -572,7 +883,7 @@ function preparePreview(file){
   if(!previews.has(file)) previews.set(file, (async () => {
     const [{ bmp, iw, ih }, meta] = await Promise.all([shrunkCopy(file, QUICK_PX),
       file.slice(0, 1 << 20).arrayBuffer().then(b => readMeta(new Uint8Array(b)))]);  // photo info sits at the start
-    return { file, iw, ih, quick: bmp, profile: isWideGamut(meta) ? profileLabel(meta.icc) : "" };
+    return { file, iw, ih, quick: bmp, cam: cameraInfo(meta.exif), profile: isWideGamut(meta) ? profileLabel(meta.icc) : "" };
   })());
   return previews.get(file);
 }
@@ -653,25 +964,249 @@ stage.addEventListener("wheel", e => {
   e.preventDefault();
   zoomTo(view.z * Math.exp(-e.deltaY * 0.002), e.clientX, e.clientY);
 }, { passive:false });
-let drag = null;
+let drag = null, logoDrag = null;
+const toLayout = e => { const r = cv.getBoundingClientRect(), L = state.layout; return { x:(e.clientX - r.left)/r.width*L.W, y:(e.clientY - r.top)/r.height*L.H, u:L.W/r.width }; };
+// The logo's box, its center and rotation, with helpers between photo and logo coordinates
+function logoGeom(){
+  const q = state.logoRect;
+  if(!q || !logoImg) return null;
+  const a = state.logo.angle*Math.PI/180, c = Math.cos(a), sn = Math.sin(a), cx = q.x + q.w/2, cy = q.y + q.h/2;
+  return { q, cx, cy, toWorld: (lx, ly) => ({ x: cx + lx*c - ly*sn, y: cy + lx*sn + ly*c }),
+           toLocal: (x, y) => ({ x: (x - cx)*c + (y - cy)*sn, y: -(x - cx)*sn + (y - cy)*c }) };
+}
+let rKey = false;   // hold R and drag the logo to rotate it
+addEventListener("keydown", e => { if((e.key === "r" || e.key === "R") && !e.target.closest?.("input,textarea")){ rKey = true; if(state.logoRect) cv.style.cursor = "alias"; } });
+addEventListener("keyup", e => { if(e.key === "r" || e.key === "R") rKey = false; });
+addEventListener("blur", () => { rKey = false; });
+function logoHit(pt){
+  const G = logoGeom();
+  if(!G) return null;
+  if(state.logoSel && Math.hypot(pt.x - G.toWorld(0, -G.q.h/2 - 26*pt.u).x, pt.y - G.toWorld(0, -G.q.h/2 - 26*pt.u).y) < 10*pt.u) return "rotate";
+  // Resize zones along the edges: up to 8 screen px, but never more than a fifth of the logo, so even a
+  // small logo has a solid middle to drag it by
+  const l = G.toLocal(pt.x, pt.y), edge = Math.min(8*pt.u, G.q.w/5, G.q.h/5), dx = G.q.w/2 - Math.abs(l.x), dy = G.q.h/2 - Math.abs(l.y);
+  if(dx < -edge || dy < -edge) return null;                           // outside the logo
+  if(rKey) return "rotate";
+  if(Math.abs(dx) <= edge && Math.abs(dy) <= edge) return "corner";   // grab a corner or an edge to resize
+  if(Math.abs(dx) <= edge) return "edgeX";
+  if(Math.abs(dy) <= edge) return "edgeY";
+  return "move";
+}
+const HIT_CURSOR = { move:"move", corner:"nwse-resize", edgeX:"ew-resize", edgeY:"ns-resize", rotate:"alias" };
 cv.addEventListener("pointerdown", e => {
+  const pt = toLayout(e), hit = logoHit(pt);
+  if(hit){
+    const G = logoGeom();
+    logoDrag = { mode: hit, dx: pt.x - G.q.x, dy: pt.y - G.q.y, dist: Math.hypot(pt.x - G.cx, pt.y - G.cy), size: state.logo.size,
+                 startAngle: state.logo.angle, startPointer: Math.atan2(pt.y - G.cy, pt.x - G.cx)*180/Math.PI };
+    state.logoSel = true;
+    if(!$("logoPop").dataset.moved) closePop("logoPop");             // get the menu out of the way (unless you placed it)
+    cv.setPointerCapture(e.pointerId); render(); return;
+  }
+  if(state.logoSel){ state.logoSel = false; render(); }
   if(view.z <= 1) return;
   drag = { x: e.clientX - view.x, y: e.clientY - view.y };
   cv.setPointerCapture(e.pointerId); stage.classList.add("panning");
 });
 cv.addEventListener("pointermove", e => {
-  if(!drag) return;
+  if(logoDrag){
+    const pt = toLayout(e), R = photoRect(state.iw, state.ih, state.layout).vis, G = logoGeom(), q = G.q;
+    if(logoDrag.mode === "rotate"){                                     // turns by how far you circle around the logo
+      let deg = logoDrag.startAngle + Math.atan2(pt.y - G.cy, pt.x - G.cx)*180/Math.PI - logoDrag.startPointer;
+      deg = ((deg + 540) % 360) - 180;
+      const straight = Math.round(deg/45)*45;
+      state.logo.angle = Math.round(Math.abs(deg - straight) < 5 ? straight : deg);   // snaps to straight angles
+    } else if(logoDrag.mode !== "move"){                                // corner or edge: resize, keeping its shape
+      state.logo.size = Math.min(0.9, Math.max(0.03, logoDrag.size * Math.hypot(pt.x - G.cx, pt.y - G.cy) / logoDrag.dist));
+    } else {
+      const x = Math.min(Math.max(pt.x - logoDrag.dx, R.x), R.x + R.w - q.w), y = Math.min(Math.max(pt.y - logoDrag.dy, R.y), R.y + R.h - q.h);
+      const res = placeFromRect({ x, y, w:q.w, h:q.h }, R, 10*pt.u);  // magnet reach: ~10 screen pixels
+      state.logo.place[state.iw >= state.ih ? "land" : "port"] = res.place; guides = res.guides;
+    }
+    render(); syncTools(); return;
+  }
+  if(!drag){ cv.style.cursor = state.logoRect ? HIT_CURSOR[logoHit(toLayout(e))] || "" : ""; return; }
   const ex = cv.offsetWidth * (view.z-1) / 2, ey = cv.offsetHeight * (view.z-1) / 2;
   view.x = Math.min(ex, Math.max(-ex, e.clientX - drag.x)); view.y = Math.min(ey, Math.max(-ey, e.clientY - drag.y));
   showZoom();
 });
-["pointerup","pointercancel"].forEach(ev => cv.addEventListener(ev, () => { drag = null; stage.classList.remove("panning"); }));
+["pointerup","pointercancel"].forEach(ev => cv.addEventListener(ev, () => {
+  if(logoDrag){ logoDrag = null; guides = null; persist(); render(); }
+  drag = null; stage.classList.remove("panning");
+}));
 cv.addEventListener("dblclick", e => zoomTo(view.z > 1 ? 1 : 1 / fitScale(), e.clientX, e.clientY));
 $("zout").onclick = () => zoomTo(view.z / 1.25);
 $("zin").onclick = () => zoomTo(view.z * 1.25);
 $("zfit").onclick = () => zoomTo(1);
 $("z100").onclick = () => zoomTo(1 / fitScale());
 addEventListener("resize", () => { if(state.img) zoomTo(view.z); });
+
+// ===== Tools on the photo: grid preview, caption, split, logo =====
+function syncTools(){
+  const sp = state.split;
+  $("tGrid").setAttribute("aria-pressed", state.gridView);
+  $("tCaption").setAttribute("aria-pressed", state.caption.on);
+  $("tSplit").setAttribute("aria-pressed", sp.mode !== "off");
+  $("tLogo").setAttribute("aria-pressed", !!logoImg);
+  stage.classList.toggle("grid-on", state.gridView && !!state.img);
+  stage.classList.toggle("has-logo", !!logoImg);
+  $("gridview").hidden = !(state.gridView && state.img);
+  document.querySelectorAll("#splitMode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === sp.mode));
+  $("splitCount").hidden = sp.mode === "off";
+  $("splitLabel").textContent = sp.mode === "grid" ? "Rows of 3 posts" : "Slides";
+  $("splitNum").textContent = sp.mode === "grid" ? sp.rows : sp.slides;
+  $("splitNote").textContent = sp.mode === "carousel" ? "One post you swipe through: the photo continues seamlessly from slide to slide. Slides use the size you picked (Instagram post if Original)."
+    : sp.mode === "grid" ? "Separate 3:4 posts that form one big picture on your profile. Post them in number order, 1 first."
+    : "Keep the photo in one piece.";
+  $("logoRemove").hidden = $("logoOpts").hidden = !logoImg;
+  $("logoPick").textContent = logoImg ? "Change logo…" : "Choose logo…";
+  $("logoOpacity").value = Math.round(state.logo.opacity*100); $("logoOpacityV").textContent = Math.round(state.logo.opacity*100) + "%";
+  document.querySelectorAll("#logoTone button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === state.logo.tone));
+}
+$("tGrid").onclick = () => { state.gridView = !state.gridView; sync(); if(state.gridView && state.img){ clearTimeout(gridTimer); renderGrid(); } };
+$("tCaption").onclick = () => { state.caption.on = !state.caption.on; sync(); };
+document.querySelectorAll("#splitMode button").forEach(b => b.onclick = () => { state.split.mode = b.dataset.v; sync(); });
+document.querySelectorAll("#splitCount button").forEach(b => b.onclick = () => {
+  const sp = state.split, d = +b.dataset.d;
+  if(sp.mode === "grid") sp.rows = Math.min(3, Math.max(1, sp.rows + d)); else sp.slides = Math.min(10, Math.max(2, sp.slides + d));
+  sync();
+});
+// Tool menus open just above their button and grow upward, so nothing gets cut off. Drag the title bar
+// to move one out of the way (it then stays where you put it), × or Esc to close.
+function closePop(id){ const el = $(id); if(el.matches(":popover-open")) el.hidePopover(); }
+[["splitPop","tSplit"],["logoPop","tLogo"]].forEach(([pop, btn]) => {
+  const el = $(pop);
+  el.addEventListener("toggle", e => {
+    if(e.newState === "open" && pop === "logoPop" && state.gridView){ state.gridView = false; sync(); }
+    if(e.newState !== "open" || el.dataset.moved) return;
+    const r = $(btn).getBoundingClientRect();
+    el.style.left = Math.max(8, Math.min(r.left, innerWidth - el.offsetWidth - 8)) + "px";
+    el.style.top = "auto"; el.style.bottom = (innerHeight - r.top + 12) + "px";
+  });
+  el.querySelector(".popx").onclick = () => closePop(pop);
+  const head = el.querySelector(".pophead");
+  head.addEventListener("pointerdown", e => {
+    if(e.target.closest(".popx")) return;
+    const r = el.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    head.setPointerCapture(e.pointerId);
+    const move = ev => {
+      el.dataset.moved = "1"; el.style.bottom = "auto";
+      el.style.left = Math.min(Math.max(0, ev.clientX - dx), innerWidth - r.width) + "px";
+      el.style.top = Math.min(Math.max(0, ev.clientY - dy), innerHeight - 40) + "px";
+    };
+    head.addEventListener("pointermove", move);
+    head.addEventListener("pointerup", () => head.removeEventListener("pointermove", move), { once:true });
+  });
+});
+addEventListener("keydown", e => { if(e.key === "Escape"){ closePop("splitPop"); closePop("logoPop"); if(state.logoSel){ state.logoSel = false; render(); } } });
+
+// Logo: kept as a tidy PNG copy (max 1200 px) in this browser only, so it's there next time
+const LOGO_KEY = "frameit-logo";
+const useLogo = url => new Promise((res, rej) => { const im = new Image(); im.onload = () => { logoImg = im; res(); }; im.onerror = rej; im.src = url; });
+try{ const savedLogo = localStorage.getItem(LOGO_KEY); if(savedLogo) useLogo(savedLogo).then(sync, () => {}); }catch(e){}
+$("logoPick").onclick = () => $("logoFile").click();
+$("logoFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if(!f) return;
+  try{
+    const im = await decodeImage(f), w0 = im.naturalWidth || 1200, h0 = im.naturalHeight || 1200, k = Math.min(1, 1200 / Math.max(w0, h0));
+    const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w0*k)); c.height = Math.max(1, Math.round(h0*k));
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/png");
+    await useLogo(url);
+    state.logoSel = true; state.gridView = false;
+    try{ localStorage.setItem(LOGO_KEY, url); }catch(err){ $("status").textContent = "Logo added. It's too big to remember for next time."; }
+    sync();
+  }catch(err){ $("status").textContent = "Couldn't open that logo. Try a PNG with a transparent background."; }
+};
+$("logoRemove").onclick = () => { logoImg = null; state.logoRect = null; state.logoSel = false; try{ localStorage.removeItem(LOGO_KEY); }catch(e){} sync(); };
+$("logoOpacity").oninput = e => { state.logo.opacity = e.target.value/100; sync(); };
+document.querySelectorAll("#logoTone button").forEach(b => b.onclick = () => { state.logo.tone = b.dataset.v; sync(); });
+
+// Instagram preview. Carousel: the post itself, swipeable, with a minimal Instagram frame.
+// Otherwise: a minimal profile with the grid (newest top-left, each post shown as a 3:4 crop).
+const IG_ICONS = {
+  heart:'<path d="M12 20.5s-7.5-4.6-9.6-9.2C.9 7.9 3.2 4 6.9 4c2.2 0 3.6 1.2 5.1 3 1.5-1.8 2.9-3 5.1-3 3.7 0 6 3.9 4.5 7.3-2.1 4.6-9.6 9.2-9.6 9.2z"/>',
+  comment:'<path d="M20.6 16.6A9 9 0 1 0 17.2 20l4.3 1.4z"/>',
+  share:'<path d="M22 3 2.5 10.2l7.6 3.1L13.4 21zM22 3 10.1 13.3"/>',
+  save:'<path d="M5.5 3h13v18l-6.5-5-6.5 5z"/>',
+  grid:'<path d="M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18"/>'
+};
+const igIcon = (n, cls = "") => `<svg class="igi ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${IG_ICONS[n]}</svg>`;
+const igBar = (w, cls = "") => `<i class="igbar ${cls}" style="width:${w}"></i>`;
+const thumbs = new Map();
+function thumbFor(file){
+  if(!thumbs.has(file)) thumbs.set(file, Promise.all([shrunkCopy(file, 0.6e6), file.slice(0, 1 << 20).arrayBuffer().then(b => readMeta(new Uint8Array(b)))])
+    .then(([{ bmp, iw, ih }, meta]) => ({ bmp, iw, ih, cam: cameraInfo(meta.exif) })));
+  return thumbs.get(file);
+}
+let gridTimer = 0, gridTicket = 0;
+function scheduleGrid(){ clearTimeout(gridTimer); gridTimer = setTimeout(renderGrid, 80); }
+async function renderGrid(){
+  const ticket = ++gridTicket;
+  if(state.split.mode === "carousel") return renderPost(ticket);
+  const posts = [], files = state.files.slice(0, 12);
+  for(const f of files){                                              // in posting order: photo 1 first
+    let t; try{ t = await thumbFor(f); }catch(e){ continue; }
+    if(ticket !== gridTicket) return;
+    const L = computeLayout(t.iw, t.ih), sc = 360 / L.sw, c = document.createElement("canvas");
+    c.width = Math.round(L.W*sc); c.height = Math.round(L.H*sc);
+    const g = c.getContext("2d"); g.setTransform(sc, 0, 0, sc, 0, 0);
+    drawFrame(g, t.bmp, t.iw, t.ih, L, { cam: t.cam });
+    const ks = state.split.mode === "grid" ? [...Array(pieceCount(L)).keys()].sort((a, b) => pieceOrder(L, a) - pieceOrder(L, b)) : [0];
+    for(const k of ks){ const { x, y } = piecePos(L, k); posts.push({ c, x:x*sc, y:y*sc, w:L.sw*sc, h:L.sh*sc }); }
+  }
+  if(ticket !== gridTicket) return;
+  const tiles = posts.reverse().map((p, i) => {                       // last posted shows first
+    const tile = el("div", "tile"), t = document.createElement("canvas"), k = Math.min(p.w / 3, p.h / 4);
+    t.width = 300; t.height = 400;
+    t.getContext("2d").drawImage(p.c, p.x + (p.w - 3*k)/2, p.y + (p.h - 4*k)/2, 3*k, 4*k, 0, 0, 300, 400);
+    tile.append(t);
+    if(posts.length > 1) tile.append(el("b", "", "#" + (posts.length - i)));
+    return tile;
+  });
+  for(let i = 0; i < 3 + (3 - tiles.length % 3) % 3; i++) tiles.push(el("div", "tile old"));   // your older posts
+  const stat = `<span>${igBar("26px")}${igBar("44px", "sm")}</span>`;
+  $("igframe").innerHTML = `<div class="igcard igprof"><div class="igtop"><span class="igav"></span><div class="igstats">${stat}${stat}${stat}</div></div>`
+    + `${igBar("38%")}${igBar("62%")}<div class="igtabs">${igIcon("grid")}</div><div class="gridtiles" id="gridtiles"></div></div>`;
+  $("gridtiles").replaceChildren(...tiles);
+  $("gridnote").textContent = "Your profile grid · Instagram shows a 3:4 crop of each post";
+}
+function renderPost(ticket){
+  const L = state.layout, n = pieceCount(L), sc = 760 / L.sw, full = document.createElement("canvas");
+  full.width = Math.round(L.W*sc); full.height = Math.round(L.H*sc);
+  const g = full.getContext("2d"); g.setTransform(full.width/L.W, 0, 0, full.height/L.H, 0, 0);
+  drawFrame(g, previewSource(), state.iw, state.ih, L, { cam: state.preview.cam });
+  const slides = [...Array(n).keys()].map(k => {
+    const c = document.createElement("canvas"); c.width = Math.round(L.sw*sc); c.height = Math.round(L.sh*sc);
+    c.getContext("2d").drawImage(full, Math.round(piecePos(L, k).x*sc), 0, c.width, c.height, 0, 0, c.width, c.height);
+    return c;
+  });
+  if(ticket !== gridTicket) return;
+  const old = $("igframe").querySelector(".igmedia"), keep = old ? Math.round(old.scrollLeft / old.clientWidth) : 0;
+  $("igframe").innerHTML = `<div class="igcard igpost"><div class="ighead"><span class="igav sm"></span>${igBar("96px")}<span class="igmore">•••</span></div>`
+    + `<div class="igmediawrap"><div class="igmedia" style="aspect-ratio:${L.sw}/${L.sh}"></div>`
+    + `<button class="ignav prev" aria-label="Previous slide">‹</button><button class="ignav next" aria-label="Next slide">›</button><span class="igcount"></span></div>`
+    + `<div class="igactions">${igIcon("heart")}${igIcon("comment")}${igIcon("share")}<span class="igdots">${slides.map(() => "<i></i>").join("")}</span>${igIcon("save", "right")}</div>`
+    + `${igBar("30%")}${igBar("86%")}${igBar("58%")}</div>`;
+  const media = $("igframe").querySelector(".igmedia"), [prev, next] = $("igframe").querySelectorAll(".ignav");
+  media.append(...slides);
+  const update = () => {
+    const i = Math.round(media.scrollLeft / Math.max(1, media.clientWidth));
+    $("igframe").querySelectorAll(".igdots i").forEach((d, k) => d.classList.toggle("on", k === i));
+    $("igframe").querySelector(".igcount").textContent = `${i + 1}/${n}`;
+    prev.hidden = i === 0; next.hidden = i === n - 1;
+  };
+  media.addEventListener("scroll", update, { passive:true });
+  media.addEventListener("wheel", e => {                                // mouse wheel swipes through the slides
+    if(e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    e.preventDefault(); media.scrollBy({ left: Math.sign(e.deltaY)*media.clientWidth, behavior:"smooth" });
+  }, { passive:false });
+  prev.onclick = () => media.scrollBy({ left: -media.clientWidth, behavior:"smooth" });
+  next.onclick = () => media.scrollBy({ left: media.clientWidth, behavior:"smooth" });
+  requestAnimationFrame(() => { media.scrollLeft = Math.min(keep, n - 1)*media.clientWidth; update(); });
+  $("gridnote").textContent = "How your carousel post looks · swipe or scroll through the slides";
+}
 
 sync();
 </script>
@@ -796,6 +1331,26 @@ function cleanExif(tiff, W, H, dropGps){
     return t;
   }catch(e){ return null; }
 }
+// Camera, lens and settings for the caption, e.g. "Sony ILCE-7RM5", "FE 35mm F1.4 GM", "35mm  f/2.8  1/250s  ISO 400"
+function cameraInfo(tiff){
+  const out = { camera:"", lens:"", settings:"" };
+  if(!tiff) return out;
+  try{
+    const dv = view32(tiff), le = tiff[0] === 0x49, u16 = o => dv.getUint16(o, le), u32 = o => dv.getUint32(o, le);
+    const tags = ifd => Object.fromEntries(Array.from({ length: u16(ifd) }, (_, i) => ifd + 2 + i*12).map(e => [u16(e), e]));
+    const ascii = e => { if(!e) return ""; const n = u32(e + 4), o = n > 4 ? u32(e + 8) : e + 8; return latin1.decode(tiff.subarray(o, o + n)).replace(/\0[\s\S]*$/, "").trim(); };
+    const ratio = e => { if(!e) return 0; const o = u32(e + 8); return u32(o) / (u32(o + 4) || 1); };
+    const num = e => e ? (u16(e + 2) === 3 ? u16(e + 8) : u32(e + 8)) : 0;
+    const t0 = tags(u32(4)), ex = t0[0x8769] ? tags(u32(t0[0x8769] + 8)) : {};
+    let make = ascii(t0[0x010F]).split(/\s+/)[0], model = ascii(t0[0x0110]);
+    if(/^[A-Z]{4,}$/.test(make)) make = make[0] + make.slice(1).toLowerCase();              // SONY → Sony
+    out.camera = model.toLowerCase().startsWith(make.toLowerCase()) ? make + model.slice(make.length) : [make, model].filter(Boolean).join(" ");
+    out.lens = ascii(ex[0xA434]);
+    const f = ratio(ex[0x920A]), a = ratio(ex[0x829D]), t = ratio(ex[0x829A]), iso = num(ex[0x8827]);
+    out.settings = [f && `${Math.round(f)}mm`, a && `f/${+a.toFixed(1)}`, t && (t < 1 ? `1/${Math.round(1/t)}s` : `${+t.toFixed(1)}s`), iso && `ISO ${iso}`].filter(Boolean).join("  ");
+  }catch(e){}
+  return out;
+}
 function cleanXmp(xmp, dropGps){
   let x = xmp.replace(/(tiff:Orientation=")\d(")/g, (m, a, b) => a + "1" + b)
              .replace(/(<tiff:Orientation>)\d(<\/tiff:Orientation>)/g, (m, a, b) => a + "1" + b);
@@ -879,40 +1434,63 @@ async function rawPixels(file, img){
 async function exportPhoto(file){
   const bytes = new Uint8Array(await file.arrayBuffer()), meta = await readMeta(bytes), img = await decodeImage(file);
   const wide = isWideGamut(meta), raw = wide ? await rawPixels(file, img) : null;
-  const full = computeLayout(img.naturalWidth, img.naturalHeight), mime = state.fmt === "png" ? "image/png" : "image/jpeg";
+  const iw = img.naturalWidth, ih = img.naturalHeight, L = computeLayout(iw, ih), cam = cameraInfo(meta.exif);
+  const mime = state.fmt === "png" ? "image/png" : "image/jpeg";
+  // Exact: unconverted pixels + original profile. Fallback for wide photos: a Display P3 canvas, which the
+  // browser tags itself (keeps most of the extra colors). Normal sRGB photos need neither.
+  const attrs = wide && !raw ? { colorSpace:"display-p3" } : {};
   // Full size first. Some browsers can't make images that big (iPhone/iPad Safari stops near 16 MP):
   // then save the largest size that works, and say so, rather than failing.
-  let L = full, blob = null;
+  let blobs = null, s = 1;
   for(const limit of [Infinity, 16e6, 4e6]){
-    L = scaleLayout(full, Math.sqrt(limit / (full.W*full.H)));
-    if(limit !== Infinity && L === full) break;
-    const c = document.createElement("canvas");
-    c.width = L.W; c.height = L.H;
-    // Exact: unconverted pixels + original profile. Fallback for wide photos: a Display P3 canvas, which the
-    // browser tags itself (keeps most of the extra colors). Normal sRGB photos need neither.
-    const g = c.getContext("2d", wide && !raw ? { colorSpace:"display-p3" } : {});
-    if(g){
-      drawFrame(g, raw || img, img.naturalWidth, img.naturalHeight, L);
-      blob = await new Promise(res => c.toBlob(res, mime, 0.92));
-    }
-    c.width = c.height = 0;
-    if(blob) break;
+    s = Math.min(1, Math.sqrt(limit / (L.W*L.H)));
+    if(limit !== Infinity && s === 1) break;
+    blobs = await renderPieces(L, s, attrs, raw || img, iw, ih, cam, mime);
+    if(blobs) break;
   }
   if(raw) raw.close();
-  if(!blob) throw new Error("Couldn't create the file");
-  let out = new Uint8Array(await blob.arrayBuffer());
-  const info = { exif:null, xmp:null, iptc:null };
-  if(state.meta !== "none"){
-    const dropGps = state.meta === "nogps";
-    info.exif = meta.exif && cleanExif(meta.exif, L.W, L.H, dropGps);
-    info.xmp = meta.xmp && cleanXmp(meta.xmp, dropGps);
-    info.iptc = meta.iptc;
-  }
+  if(!blobs) throw new Error("Couldn't create the file");
   const icc = raw ? meta.icc : null;  // the color profile is not personal info, so it's kept in every mode
-  out = state.fmt === "png" ? await writePng(out, info, icc) : writeJpeg(out, jpegMeta(info, icc), !!icc);
-  const result = new Blob([out], { type: mime });
-  result.smaller = L !== full;
-  return result;
+  const n = blobs.length, kind = state.split.mode === "grid" ? "post" : "slide", results = [];
+  for(const [k, blob] of blobs.entries()){
+    const pw = Math.round((n > 1 ? L.sw : L.W)*s), ph = Math.round((n > 1 ? L.sh : L.H)*s), info = { exif:null, xmp:null, iptc:null };
+    if(state.meta !== "none"){
+      const dropGps = state.meta === "nogps";
+      info.exif = meta.exif && cleanExif(meta.exif, pw, ph, dropGps);
+      info.xmp = meta.xmp && cleanXmp(meta.xmp, dropGps);
+      info.iptc = meta.iptc;
+    }
+    let out = new Uint8Array(await blob.arrayBuffer());
+    out = state.fmt === "png" ? await writePng(out, info, icc) : writeJpeg(out, jpegMeta(info, icc), !!icc);
+    const result = new Blob([out], { type: mime });
+    result.smaller = s < 1;
+    results.push({ blob: result, order: pieceOrder(L, k), suffix: n > 1 ? `-${kind}${pieceOrder(L, k)}of${n}` : "" });
+  }
+  return results.sort((a, b) => a.order - b.order);
+}
+// Draws the whole frame once, then cuts it into slides/posts (or keeps it whole)
+async function renderPieces(L, s, attrs, src, iw, ih, cam, mime){
+  const c = document.createElement("canvas"), toBlob = cc => new Promise(res => cc.toBlob(res, mime, 0.92));
+  c.width = Math.round(L.W*s); c.height = Math.round(L.H*s);
+  try{
+    const g = c.getContext("2d", attrs);
+    if(!g) return null;
+    g.setTransform(c.width/L.W, 0, 0, c.height/L.H, 0, 0);
+    drawFrame(g, src, iw, ih, L, { cam });
+    if(pieceCount(L) === 1){ const b = await toBlob(c); return b ? [b] : null; }
+    const out = [];
+    for(let k = 0; k < pieceCount(L); k++){
+      const { x, y } = piecePos(L, k), pc = document.createElement("canvas");
+      pc.width = Math.round(L.sw*s); pc.height = Math.round(L.sh*s);
+      const pg = pc.getContext("2d", attrs);
+      if(!pg) return null;
+      pg.drawImage(c, Math.round(x*s), Math.round(y*s), pc.width, pc.height, 0, 0, pc.width, pc.height);
+      const b = await toBlob(pc); pc.width = pc.height = 0;
+      if(!b) return null;
+      out.push(b);
+    }
+    return out;
+  }finally{ c.width = c.height = 0; }
 }
 function download(blob, name){
   const url = URL.createObjectURL(blob), a = document.createElement("a");
@@ -961,40 +1539,43 @@ async function makeZip(entries){
 }
 const META_NOTES = { keep:"photo info kept", nogps:"photo info kept, location removed", none:"photo info removed" };
 async function saveAll(){
-  const files = state.files, n = files.length;
+  const files = state.files, n = files.length, perPhoto = pieceCount(computeLayout()), total = n * perPhoto;
   if(!n) return;
   // Several photos: pick a folder once and write them all there (Chrome, Edge), otherwise one ZIP.
   // Either way it's a single save window, not one per photo.
   let folder = null;
-  if(n > 1 && window.showDirectoryPicker){
+  if(total > 1 && window.showDirectoryPicker){
     try{ folder = await showDirectoryPicker({ id:"frame-it", mode:"readwrite", startIn:"pictures" }); }
     catch(e){ if(e.name === "AbortError") return; }                    // cancelled: save nothing
   }
   $("save").disabled = $("another").disabled = true;
-  const taken = new Set();
-  let saved = 0, last = "", smaller = 0, zipped = [], zipBytes = 0, zipParts = 0;
+  const taken = new Set(), noun = state.split.mode === "grid" ? "posts" : state.split.mode === "carousel" ? "slides" : "photos";
+  let saved = 0, last = "", smaller = 0, zipped = [], zipBytes = 0, zipParts = 0, made = 0;
   // A new ZIP every ~1 GB keeps memory in check and stays far below the 4 GB ZIP format limit
   const sendZip = async name => { download(await makeZip(zipped), name); zipped = []; zipBytes = 0; };
   for(const [i, file] of files.entries()){
     $("status").textContent = n > 1 ? `Framing ${i + 1} of ${n}…` : "Preparing file…";
     try{
-      const blob = await exportPhoto(file);
-      const name = `${baseName(file)}-${state.preset}-${state.bw}pct.${state.fmt}`;
-      if(folder) last = await writeToFolder(folder, name, blob);      // checks the folder, so earlier photos count too
-      else { last = uniqueName(name, taken); n === 1 ? download(blob, last) : (zipped.push({ name:last, blob }), zipBytes += blob.size); }
-      saved++; if(blob.smaller) smaller++;
+      for(const { blob, suffix } of await exportPhoto(file)){
+        const name = `${baseName(file)}-${state.preset}-${state.bw}pct${suffix}.${state.fmt}`;
+        if(folder) last = await writeToFolder(folder, name, blob);    // checks the folder, so earlier photos count too
+        else { last = uniqueName(name, taken); total === 1 ? download(blob, last) : (zipped.push({ name:last, blob }), zipBytes += blob.size); }
+        made++; if(blob.smaller) smaller++;
+      }
+      saved++;
       if(zipBytes > 1e9){ $("status").textContent = "Packing ZIP…"; await sendZip(`frame-it-photos-part${++zipParts}.zip`); }
     }catch(e){ console.error(file.name, e); }
   }
   if(zipped.length){
     $("status").textContent = "Packing ZIP…";
-    await sendZip(zipParts ? `frame-it-photos-part${++zipParts}.zip` : (zipParts = 1, `frame-it-${saved}-photos.zip`));
+    await sendZip(zipParts ? `frame-it-photos-part${++zipParts}.zip` : (zipParts = 1, `frame-it-${made}-${noun}.zip`));
   }
   $("save").disabled = $("another").disabled = false;
   const where = folder ? (folder.name ? ` to “${folder.name}”` : " to your folder") : zipParts > 1 ? ` in ${zipParts} ZIPs` : zipParts ? " in one ZIP" : "";
-  const what = n === 1 ? (saved ? `Saved ${last}` : "Couldn't create the file")
-             : `Saved ${saved === n ? n : `${saved} of ${n}`} photos${where}`;
-  const note = smaller ? ` · ${n === 1 ? "saved" : smaller + " saved"} smaller, this browser can't make one that big` : "";
+  const what = total === 1 ? (saved ? `Saved ${last}` : "Couldn't create the file")
+             : `Saved ${made} ${noun}${perPhoto > 1 && n > 1 ? ` from ${saved} photos` : ""}${saved < n ? ` (${n - saved} couldn't be saved)` : ""}${where}`;
+  const note = (smaller ? ` · ${total === 1 ? "saved" : smaller + " saved"} smaller, this browser can't make one that big` : "")
+             + (state.split.mode === "grid" && made ? " · post them in number order, 1 first" : "");
   $("status").textContent = saved ? `${what} · ${META_NOTES[state.meta]}${note}` : what;
 }
 </script>
@@ -1022,11 +1603,28 @@ function buildThemeMenu(){
   motion.querySelectorAll("button").forEach(b => b.onclick = () => setThemePref({ motion: b.dataset.v === "on" }));
   settingsEl.append(motion);
 
+  settingsEl.append(el("h3", "", "Caption"));
+  const capName = el("input", "capname");
+  capName.type = "text"; capName.placeholder = "Your name (optional)"; capName.maxLength = 60; capName.value = state.caption.name;
+  capName.setAttribute("aria-label", "Name in the caption");
+  capName.oninput = () => { state.caption.name = capName.value; sync(); };
+  const capParts = el("div", "seg capparts");
+  capParts.innerHTML = '<button data-k="camera">Camera</button><button data-k="lens">Lens</button><button data-k="settings">Settings</button>';
+  capParts.querySelectorAll("button").forEach(b => b.onclick = () => { state.caption[b.dataset.k] = !state.caption[b.dataset.k]; sync(); renderThemeMenu(); });
+  const capAlign = el("div", "seg capalign");
+  capAlign.innerHTML = '<button data-v="left">Left</button><button data-v="center">Center</button><button data-v="right">Right</button>';
+  capAlign.querySelectorAll("button").forEach(b => b.onclick = () => { state.caption.align = b.dataset.v; sync(); renderThemeMenu(); });
+  const capFont = el("div", "seg capfont");
+  capFont.innerHTML = '<button data-v="classic" style="font-family:' + SERIF.replace(/"/g, "'") + '">Classic</button><button data-v="modern" style="letter-spacing:.08em">MODERN</button>'
+    + '<button data-v="mono" style="font-family:' + MONO.replace(/"/g, "'") + '">Mono</button><button data-v="pixel" class="pixelbtn">Pixel</button>';
+  capFont.querySelectorAll("button").forEach(b => b.onclick = () => { state.caption.font = b.dataset.v; sync(); renderThemeMenu(); });
+  settingsEl.append(capName, capParts, capAlign, capFont, el("p", "metanote", "Shown under the photo when Caption is on (photo toolbar). Camera details come from each photo."));
+
   settingsEl.append(el("h3", "", "Photo info in saved files"));
   const info = el("div", "seg photoinfo");
   info.innerHTML = '<button data-meta="keep">Keep all</button><button data-meta="nogps">No location</button><button data-meta="none">Remove</button>';
   info.querySelectorAll("button").forEach(b => b.onclick = () => { state.meta = b.dataset.meta; persist(); renderThemeMenu(); });
-  settingsEl.append(info, el("p", "metanote"));
+  settingsEl.append(info, el("p", "metanote metainfo"));
 }
 const META_EXPLAIN = {
   keep:  "Copyright, camera settings and GPS location are copied from your photos.",
@@ -1043,8 +1641,11 @@ function renderThemeMenu(){
     if(key === "auto") b.querySelector("small").textContent = "Now: " + THEMES[season].label;
   });
   settingsEl.querySelectorAll(".motion button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.v === "on") === themePref.motion));
+  settingsEl.querySelectorAll(".capparts button").forEach(b => b.setAttribute("aria-pressed", !!state.caption[b.dataset.k]));
+  settingsEl.querySelectorAll(".capalign button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === state.caption.align));
+  settingsEl.querySelectorAll(".capfont button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === state.caption.font));
   settingsEl.querySelectorAll(".photoinfo button").forEach(b => b.setAttribute("aria-pressed", b.dataset.meta === state.meta));
-  settingsEl.querySelector(".metanote").textContent = META_EXPLAIN[state.meta];
+  settingsEl.querySelector(".metainfo").textContent = META_EXPLAIN[state.meta];
 }
 
 settingsEl.addEventListener("toggle", e => {
