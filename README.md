@@ -2,7 +2,7 @@
 
 Add clean borders to your photos and resize them for Instagram, right in your browser.
 
-### 👉 [Open Frame It](https://xarvulth.github.io/frame-it/)
+###  (https://xarvulth.github.io/frame-it/)
 
 ## Features
 
