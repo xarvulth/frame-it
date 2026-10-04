@@ -29,61 +29,338 @@
   --accent:#d08a5f; --accent-ink:#2f2220; --stage:#1f1614; --btn:#d08a5f; --btn-ink:#2f2220;
 }
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+html{height:100%;overflow:hidden}
+body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45}
-.app{display:grid;grid-template-columns:1fr 320px;min-height:100vh}
-.stage{background:var(--stage);display:flex;align-items:center;justify-content:center;padding:28px;position:relative;min-height:60vh}
-.stage canvas{max-width:100%;max-height:calc(100vh - 56px);box-shadow:0 12px 44px var(--shadow);display:none}
+.app{display:grid;grid-template-columns:1fr 320px;height:100%}
+.stage{background:var(--stage);display:flex;align-items:center;justify-content:center;padding:28px;position:relative;min-height:0;overflow:hidden}
+.stage canvas{max-width:100%;max-height:100%;box-shadow:0 12px 44px var(--shadow);display:none}
 .stage.has-img canvas{display:block}
+.stage.zoomed canvas{cursor:grab;touch-action:none}
+.stage.panning canvas{cursor:grabbing}
+.zoombar{position:absolute;left:14px;bottom:14px;z-index:2;display:none;align-items:center;background:var(--panel);color:var(--text);font-size:13px}
+.stage.has-img .zoombar{display:flex}
+.zoombar button{border:0;background:transparent;color:inherit;font:inherit;min-width:30px;height:28px;padding:0 8px;cursor:pointer}
+.zoombar button:hover{background:color-mix(in srgb,var(--btn) 14%,transparent)}
+#zlevel{min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+#zfit,#z100{box-shadow:inset 1px 0 0 0 var(--line)}
+.batchbar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:2;display:flex;align-items:center;max-width:calc(100% - 28px);background:var(--panel);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap}
+.batchbar[hidden]{display:none}
+.batchbar span{padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+.batchbar button{border:0;background:transparent;color:inherit;font:inherit;font-size:18px;width:32px;height:32px;cursor:pointer}
+.batchbar button:hover{background:color-mix(in srgb,var(--btn) 14%,transparent)}
 .drop{border:2px dashed #6e4a3c;border-radius:14px;padding:48px 36px;text-align:center;max-width:420px;cursor:pointer;color:var(--deep-muted)}
 .drop strong{display:block;color:var(--deep-ink);font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:6px}
 .stage.has-img .drop{display:none}
 .stage.dragging{outline:3px solid var(--deep-muted);outline-offset:-10px}
-aside{background:var(--panel);border-left:1px solid var(--line);padding:24px 22px;display:flex;flex-direction:column;gap:22px}
-h1{font-family:var(--serif);font-size:26px;margin:0;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-h2{font-size:12px;margin:0 0 10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
-.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.chip{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:10px;padding:9px 10px;text-align:left;cursor:pointer;font:inherit}
-.chip small{display:block;color:var(--muted);font-size:12px}
+aside{background:var(--panel);border-left:1px solid var(--line);padding:18px 18px 14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}
+h1{font-family:var(--serif);font-size:24px;line-height:1.1;margin:0;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+h2{font-size:11px;margin:0 0 7px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:10px;padding:6px 10px;text-align:left;cursor:pointer;font:inherit;font-size:14px;line-height:1.3}
+.chip small{display:block;color:var(--muted);font-size:11px}
 .chip[aria-pressed="true"]{border-color:var(--btn);box-shadow:inset 0 0 0 1px var(--btn)}
 .row{display:flex;align-items:center;gap:12px}
 input[type=range]{flex:1;accent-color:var(--accent)}
 .val{min-width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
 .swatches{display:flex;gap:8px;align-items:center}
-.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
 .sw[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
-input[type=color]{width:34px;height:34px;border:none;padding:0;background:none;cursor:pointer}
+.picker{position:relative;width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:var(--text);cursor:pointer}
+.picker svg{width:15px;height:15px;pointer-events:none}
+.picker{background:transparent;padding:0}
+.picker.active{outline:2px solid var(--accent);outline-offset:2px}
+.palette{position:fixed;inset:auto;margin:0;padding:10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px var(--shadow)}
+.palette:popover-open{display:grid;grid-template-columns:repeat(6,28px);gap:6px}
+.pc{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);padding:0;cursor:pointer}
+.pc[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.seg button{flex:1;border:none;background:transparent;color:var(--text);padding:9px;font:inherit;cursor:pointer}
+.seg button{flex:1;border:none;background:transparent;color:var(--text);padding:7px;font:inherit;font-size:14px;white-space:nowrap;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--btn);color:var(--btn-ink);font-weight:600}
-.info{color:var(--muted);font-size:13px}
-.save{margin-top:auto;border:none;background:var(--btn);color:var(--btn-ink);font:inherit;font-weight:700;font-size:16px;padding:14px;border-radius:12px;cursor:pointer}
+.info{color:var(--muted);font-size:13px;margin:0}
+.actions{display:flex;gap:8px;margin-top:auto}
+.save{flex:1;border:none;background:var(--btn);color:var(--btn-ink);font:inherit;font-weight:700;font-size:16px;padding:12px;border-radius:12px;cursor:pointer}
 .save:disabled{opacity:.45;cursor:not-allowed}
-.secondary{border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;padding:10px;border-radius:10px;cursor:pointer}
-.status{font-size:13px;color:var(--muted);min-height:1.2em}
+.save-wrap{position:relative;flex:1;display:flex}
+.save-wrap .save{position:relative;z-index:1}
+/* Kitty peeks out from behind the top edge of the save button */
+.kitty{position:absolute;right:16px;bottom:0;width:60px;height:calc(100% + 66px);overflow:hidden;pointer-events:none}
+.kitty img{position:absolute;left:0;top:70px;width:100%;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){ .save:not(:disabled):hover + .kitty img{transform:translateY(-56px)} }
+.save:not(:disabled):focus-visible + .kitty img{transform:translateY(-56px)}
+.save:disabled + .kitty{visibility:hidden}
+@media (prefers-reduced-motion:reduce){ .kitty img{transition:none} }
+.secondary{border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;padding:10px 12px;border-radius:12px;cursor:pointer;white-space:nowrap}
+.status{font-size:12px;color:var(--muted);min-height:1.2em;margin:-6px 0 0}
 button:focus-visible,input:focus-visible,.drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .drop:focus-visible{outline-color:var(--deep-muted)}
+@media (min-width:821px) and (max-height:640px){
+  h1{display:none}
+}
+@media (min-width:821px) and (max-height:600px){
+  .chip small{display:none}
+}
 @media (max-width:820px){
-  .app{grid-template-columns:1fr}
-  aside{border-left:none;border-top:1px solid var(--line)}
-  .stage canvas{max-height:65vh}
+  .app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  .stage{padding:14px}
+  .drop{padding:28px 20px}
+  aside{border-left:none;border-top:1px solid var(--line);padding:12px 14px 10px;gap:10px;max-height:70vh}
+  h1{display:none}
+  .presets{display:flex;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:0 14px}
+  .presets::-webkit-scrollbar{display:none}
+  .chip{flex:none}
+  .info{font-size:12px}
+  .zoombar{display:none!important}
+  .stage.batch{padding-top:56px}
+  .batchbar{left:10px;transform:none;max-width:calc(100% - 64px)}
 }
 </style>
+<style id="pixel-theme">
+/* ===== Pixel seasonal theme. Colors and icons are set by the theme script below ===== */
+:root{--px:3px; --px-edge:#2f2220; --drop-line:#6e4a3c}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--px-edge:#6e4a3c} }
+:root[data-theme="dark"]{--px-edge:#6e4a3c}
+
+/* Pixel borders: four offset shadows leave the corners notched, like 8-bit UI */
+.chip,.seg,.secondary,.save,.sw,.picker,.pc,.palette,.gear,.settings,.tchip,.zoombar,.batchbar{
+  --px-border:0 calc(-1*var(--px)) 0 0 var(--px-edge),0 var(--px) 0 0 var(--px-edge),calc(-1*var(--px)) 0 0 0 var(--px-edge),var(--px) 0 0 0 var(--px-edge);
+  border:0;border-radius:0;box-shadow:var(--px-border)}
+.chip{margin:var(--px)}
+.presets{gap:4px}
+.chip[aria-pressed="true"],.tchip[aria-pressed="true"]{--px-edge:var(--btn);background:color-mix(in srgb,var(--btn) 14%,transparent);box-shadow:var(--px-border)}
+.seg{margin:0 var(--px)}
+.seg button+button{box-shadow:inset var(--px) 0 0 0 var(--px-edge)}
+.secondary,.save{box-shadow:var(--px-border),inset 0 calc(-1*var(--px)) 0 0 rgba(0,0,0,.22),inset 0 var(--px) 0 0 rgba(255,255,255,.14);transition:transform .08s,filter .15s}
+.save:not(:disabled):hover,.secondary:hover{filter:brightness(1.08)}
+.save:not(:disabled):active,.secondary:active{transform:translateY(2px);box-shadow:var(--px-border),inset 0 var(--px) 0 0 rgba(0,0,0,.22)}
+.actions{margin-left:var(--px);margin-right:var(--px);gap:12px}
+.sw,.picker{width:26px;height:26px;margin:var(--px)}
+.sw[aria-pressed="true"],.picker.active{outline:2px solid var(--accent);outline-offset:5px}
+.palette{box-shadow:var(--px-border),8px 8px 0 0 var(--shadow)}
+.pc{--px:2px;margin:2px}
+.pc[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:4px}
+button:focus-visible,input:focus-visible,.drop:focus-visible{outline-offset:5px}
+
+/* Pixel slider */
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;background:var(--line);margin:0 var(--px)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border:0;background:var(--btn);cursor:pointer;box-shadow:0 -2px 0 0 var(--px-edge),0 2px 0 0 var(--px-edge),-2px 0 0 0 var(--px-edge),2px 0 0 0 var(--px-edge)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:0;background:var(--btn);cursor:pointer;box-shadow:0 -2px 0 0 var(--px-edge),0 2px 0 0 var(--px-edge),-2px 0 0 0 var(--px-edge),2px 0 0 0 var(--px-edge)}
+input[type=range]::-moz-range-progress{height:6px;background:var(--accent)}
+
+/* Photo stage */
+.stage canvas{position:relative;z-index:1;box-shadow:8px 8px 0 0 rgba(0,0,0,.35)}
+.drop{position:relative;z-index:1;border:3px dashed var(--drop-line);border-radius:0;background:color-mix(in srgb,var(--deep) 55%,transparent)}
+
+/* Season icons */
+h1::after{content:"";display:inline-block;width:16px;height:16px;margin-left:8px;vertical-align:-1px;background:var(--icon-1) center/contain no-repeat;image-rendering:pixelated}
+h2::before{content:"";display:inline-block;width:9px;height:9px;margin-right:6px;vertical-align:-1px;background:var(--icon-1) center/contain no-repeat;image-rendering:pixelated}
+aside section:nth-of-type(3n+2) h2::before{background-image:var(--icon-2)}
+aside section:nth-of-type(3n) h2::before{background-image:var(--icon-3)}
+
+/* Drifting icons: leaves and petals tumble, snow floats, fireflies rise */
+.particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.particles i{position:absolute;top:-30px;width:18px;height:18px;background:var(--fx-1) center/contain no-repeat;image-rendering:pixelated;opacity:.7;animation:leaf-fall 14s linear infinite}
+.particles i:nth-child(3n+2){background-image:var(--fx-2)}
+.particles i:nth-child(3n){background-image:var(--fx-3)}
+.particles i:nth-child(1){left:6%;animation-duration:16s;animation-delay:-2s}
+.particles i:nth-child(2){left:19%;width:12px;height:12px;animation-duration:19s;animation-delay:-11s}
+.particles i:nth-child(3){left:33%;animation-duration:15s;animation-delay:-6s}
+.particles i:nth-child(4){left:48%;width:14px;height:14px;animation-duration:21s;animation-delay:-15s}
+.particles i:nth-child(5){left:62%;animation-duration:17s;animation-delay:-4s}
+.particles i:nth-child(6){left:76%;width:12px;height:12px;animation-duration:20s;animation-delay:-9s}
+.particles i:nth-child(7){left:88%;animation-duration:18s;animation-delay:-13s}
+[data-fx="snow"] .particles i{animation-name:snow-fall;opacity:.85}
+[data-fx="sun"] .particles i{top:auto;bottom:-30px;animation-name:firefly-rise;opacity:1;filter:drop-shadow(0 0 4px rgba(255,214,107,.8))}
+[data-motion="off"] .particles{display:none}
+@keyframes leaf-fall{
+  0%{transform:translate(0,0) rotate(0deg)}
+  25%{transform:translate(22px,28vh) rotate(80deg)}
+  50%{transform:translate(-14px,55vh) rotate(170deg)}
+  75%{transform:translate(18px,82vh) rotate(260deg)}
+  100%{transform:translate(0,calc(100vh + 60px)) rotate(360deg)}
+}
+@keyframes snow-fall{
+  0%{transform:translate(0,0) rotate(0deg)}
+  33%{transform:translate(10px,35vh) rotate(40deg)}
+  66%{transform:translate(-8px,70vh) rotate(80deg)}
+  100%{transform:translate(4px,calc(100vh + 60px)) rotate(120deg)}
+}
+@keyframes firefly-rise{
+  0%{transform:translate(0,0);opacity:0}
+  10%{opacity:1}
+  25%{transform:translate(16px,-25vh);opacity:.35}
+  40%{opacity:1}
+  50%{transform:translate(-12px,-50vh);opacity:.5}
+  65%{opacity:1}
+  75%{transform:translate(14px,-75vh);opacity:.4}
+  90%{opacity:.9}
+  100%{transform:translate(0,calc(-100vh - 60px));opacity:0}
+}
+@media (prefers-reduced-motion:reduce){ .particles{display:none} }
+
+/* Theme gear and settings */
+aside{position:relative}
+.gear{position:absolute;top:16px;right:18px;z-index:3;width:28px;height:28px;padding:0;display:grid;place-items:center;background:var(--panel);color:var(--muted);cursor:pointer}
+.gear:hover,.gear:focus-visible{color:var(--text)}
+.gear svg{width:18px;height:18px;transition:transform .4s}
+.gear:hover svg{transform:rotate(45deg)}
+.settings{position:fixed;inset:auto;margin:0;width:256px;max-height:calc(100vh - 16px);overflow-y:auto;padding:14px 14px 16px;background:var(--panel);color:var(--text);box-shadow:var(--px-border),8px 8px 0 0 var(--shadow)}
+.settings:popover-open{display:flex;flex-direction:column;gap:8px}
+.settings h3{font-size:11px;margin:4px 0 0;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.settings h3:first-child{margin-top:0}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tchip{margin:var(--px);display:flex;align-items:center;gap:8px;padding:7px 9px;background:transparent;color:var(--text);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.tchip.auto{grid-column:1/-1}
+.tchip small{color:var(--muted);font-size:11px;margin-left:auto}
+.ticon{width:14px;height:14px;flex:none;background:center/contain no-repeat;image-rendering:pixelated}
+.settings .seg button{padding:5px;font-size:13px}
+.metanote{margin:0;font-size:12px;line-height:1.35;color:var(--muted)}
+@media (min-width:821px) and (max-height:640px){ .gear{top:8px} }
+@media (max-width:820px){ .gear{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px} }
+</style>
+<script>
+// ===== Seasonal themes (runs in <head> so the right season paints first) =====
+const PIXEL_MAPS = {
+  leaf:    ["....XXXX","...XXXXX","..XXXXVX",".XXXXVXX",".XXXVXXX",".XXVXXX.",".SVXXX..","S......."],
+  flake:   ["....X....","..X.X.X..","...XXX...",".X..X..X.","XXXXVXXXX",".X..X..X.","...XXX...","..X.X.X..","....X...."],
+  bloom:   [".XX.XX.","XXXXXXX","XXXVXXX",".XVVVX.","XXXVXXX","XXXXXXX",".XX.XX."],
+  petal:   ["..XX.",".XXXX","XXXV.","XXV..",".X..."],
+  sun:     ["....S....",".S.....S.","...XXX...","..XXXXX..","S.XXVXX.S","..XXXXX..","...XXX...",".S.....S.","....S...."],
+  firefly: ["..S..",".SXS.","SXVXS",".SXS.","..S.."]
+};
+function pixelIcon(name, colors){
+  const map = PIXEL_MAPS[name];
+  let rects = "";
+  map.forEach((row, y) => [...row].forEach((ch, x) => {
+    if(ch !== ".") rects += `<rect x='${x}' y='${y}' width='1' height='1' fill='${colors[ch]}'/>`;
+  }));
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${map[0].length} ${map.length}' shape-rendering='crispEdges'>${rects}</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+// ui: icons on the light/dark panel (title + section labels). fx: icons drifting over the dark photo area.
+const ICON_SETS = {
+  leaf: { label:"Leaves",
+    ui:[["leaf",{X:"#d9752b",V:"#a8501f",S:"#552b1f"}],["leaf",{X:"#b5442a",V:"#842f1d",S:"#552b1f"}],["leaf",{X:"#d9a13b",V:"#a87628",S:"#552b1f"}]],
+    fx:[["leaf",{X:"#d9752b",V:"#a8501f",S:"#552b1f"}],["leaf",{X:"#b5442a",V:"#842f1d",S:"#552b1f"}],["leaf",{X:"#d9a13b",V:"#a87628",S:"#552b1f"}]] },
+  snow: { label:"Snowflakes",
+    ui:[["flake",{X:"#6f9cc4",V:"#3f6f9a"}],["flake",{X:"#4a7bab",V:"#2d5a85"}],["flake",{X:"#8a86c2",V:"#5f5a9e"}]],
+    fx:[["flake",{X:"#ffffff",V:"#b9d4ea"}],["flake",{X:"#d6e6f5",V:"#ffffff"}],["flake",{X:"#c9c3e6",V:"#ffffff"}]] },
+  bloom: { label:"Blossoms",
+    ui:[["bloom",{X:"#e07f9b",V:"#e8b04b"}],["bloom",{X:"#c9637f",V:"#f2c14e"}],["bloom",{X:"#e8a0b4",V:"#e8b04b"}]],
+    fx:[["petal",{X:"#f6b5c6",V:"#e58aa3"}],["bloom",{X:"#fbd3dd",V:"#f2c14e"}],["petal",{X:"#ffe4ec",V:"#f6b5c6"}]] },
+  sun: { label:"Sunshine",
+    ui:[["sun",{X:"#e8a83a",V:"#f5cf5f",S:"#d9703f"}],["sun",{X:"#d9703f",V:"#e8a83a",S:"#b5532f"}],["sun",{X:"#e8c25a",V:"#fff0a8",S:"#e8a83a"}]],
+    fx:[["firefly",{X:"#ffe27a",V:"#ffffff",S:"#f5b94299"}],["firefly",{X:"#fff0a8",V:"#ffffff",S:"#ffe27a99"}],["firefly",{X:"#ffd36b",V:"#fff6d6",S:"#f5a94299"}]] }
+};
+
+const THEMES = {
+  spring: { label:"Spring", icons:"bloom",
+    light:{bg:"#f6e8ec",panel:"#fcf5f7",line:"#ebd2da",text:"#24412f",muted:"#4f6a55",accent:"#c2537a",accentInk:"#ffffff",deep:"#24412f",deepInk:"#fbeef2",deepMuted:"#b9d1bd",stage:"#24412f",btn:"#24412f",btnInk:"#fbeef2",pxEdge:"#24412f",dropLine:"#4f6a55"},
+    dark: {bg:"#24412f",panel:"#24412f",line:"#4b6b55",text:"#fbeef2",muted:"#c4d6c6",accent:"#f2a5bf",accentInk:"#24412f",deep:"#24412f",deepInk:"#fbeef2",deepMuted:"#b9d1bd",stage:"#18301f",btn:"#f2a5bf",btnInk:"#24412f",pxEdge:"#4b6b55",dropLine:"#4b6b55"} },
+  summer: { label:"Summer", icons:"sun",
+    light:{bg:"#f7e8bf",panel:"#fdf6e1",line:"#ecd8a2",text:"#12404c",muted:"#3c6370",accent:"#c4562a",accentInk:"#ffffff",deep:"#0f4452",deepInk:"#fff4d6",deepMuted:"#9fcbd0",stage:"#0f4452",btn:"#0f4452",btnInk:"#fff4d6",pxEdge:"#0f4452",dropLine:"#3c6370"},
+    dark: {bg:"#0f4452",panel:"#0f4452",line:"#2f6a77",text:"#fff4d6",muted:"#a9d3d6",accent:"#ffb36b",accentInk:"#0f4452",deep:"#0f4452",deepInk:"#fff4d6",deepMuted:"#9fcbd0",stage:"#08303a",btn:"#ffb36b",btnInk:"#0f4452",pxEdge:"#2f6a77",dropLine:"#2f6a77"} },
+  fall: { label:"Fall", icons:"leaf",
+    light:{bg:"#ede1d4",panel:"#f6ede3",line:"#dcc6b2",text:"#2f2220",muted:"#6e4a3c",accent:"#894c30",accentInk:"#fff6ec",deep:"#2f2220",deepInk:"#f3e2cf",deepMuted:"#c9a891",stage:"#2f2220",btn:"#2f2220",btnInk:"#f3e2cf",pxEdge:"#2f2220",dropLine:"#6e4a3c"},
+    dark: {bg:"#2f2220",panel:"#2f2220",line:"#6e4a3c",text:"#f3e2cf",muted:"#c9a891",accent:"#d08a5f",accentInk:"#2f2220",deep:"#2f2220",deepInk:"#f3e2cf",deepMuted:"#c9a891",stage:"#1f1614",btn:"#d08a5f",btnInk:"#2f2220",pxEdge:"#6e4a3c",dropLine:"#6e4a3c"} },
+  winter: { label:"Winter", icons:"snow",
+    light:{bg:"#e6ecf1",panel:"#f3f6f9",line:"#c9d5df",text:"#1d2733",muted:"#4a5d70",accent:"#3f6f9a",accentInk:"#ffffff",deep:"#1d2733",deepInk:"#e8eef4",deepMuted:"#a9bccd",stage:"#1d2733",btn:"#1d2733",btnInk:"#e8eef4",pxEdge:"#1d2733",dropLine:"#4a5d70"},
+    dark: {bg:"#1d2733",panel:"#1d2733",line:"#3d5266",text:"#e8eef4",muted:"#a9bccd",accent:"#8fb8de",accentInk:"#1d2733",deep:"#1d2733",deepInk:"#e8eef4",deepMuted:"#a9bccd",stage:"#141c25",btn:"#8fb8de",btnInk:"#1d2733",pxEdge:"#3d5266",dropLine:"#3d5266"} }
+};
+
+// Real (astronomical) seasons, northern hemisphere: they change at the exact equinox or solstice moment.
+// Uses Jean Meeus' formula from "Astronomical Algorithms" (accurate to about a minute for years 1000–3000).
+const MEEUS_TERMS = [
+  [485,324.96,1934.136],[203,337.23,32964.467],[199,342.08,20.186],[182,27.85,445267.112],[156,73.14,45036.886],[136,171.52,22518.443],
+  [77,222.54,65928.934],[74,296.72,3034.906],[70,243.58,9037.513],[58,119.81,33718.147],[52,297.17,150.678],[50,21.02,2281.226],
+  [45,247.54,29929.562],[44,325.15,31555.956],[29,60.93,4443.417],[18,155.12,67555.328],[17,288.79,4562.452],[16,198.04,62894.029],
+  [14,199.76,31436.921],[12,95.39,14577.848],[12,287.11,31931.756],[12,320.81,34777.259],[9,227.73,1222.114],[8,15.45,16859.074]
+];
+const MEEUS_MEAN = [ // March equinox, June solstice, September equinox, December solstice
+  [2451623.80984,365242.37404,0.05169,-0.00411,-0.00057],[2451716.56767,365241.62603,0.00325,0.00888,-0.00030],
+  [2451810.21715,365242.01767,-0.11575,0.00337,0.00078],[2451900.05952,365242.74049,-0.06223,-0.00823,0.00032]
+];
+// Returns the 4 season starts of a year as timestamps: [spring, summer, fall, winter]
+function seasonStarts(year){
+  const Y = (year - 2000) / 1000, rad = Math.PI / 180;
+  return MEEUS_MEAN.map(c => {
+    const jde0 = c[0] + c[1]*Y + c[2]*Y**2 + c[3]*Y**3 + c[4]*Y**4;
+    const T = (jde0 - 2451545) / 36525, W = (35999.373*T - 2.47) * rad;
+    const dl = 1 + 0.0334*Math.cos(W) + 0.0007*Math.cos(2*W);
+    const S = MEEUS_TERMS.reduce((s, [A,B,C]) => s + A*Math.cos((B + C*T) * rad), 0);
+    return (jde0 + 0.00001*S/dl - 2440587.5) * 86400000 - 69e3; // minus ~69 s: astronomical time runs ahead of clock time
+  });
+}
+function seasonFor(date){
+  const t = date.getTime(), [spring, summer, fall, winter] = seasonStarts(date.getFullYear());
+  return t < spring ? "winter" : t < summer ? "spring" : t < fall ? "summer" : t < winter ? "fall" : "winter";
+}
+function nextSeasonChange(date){
+  const t = date.getTime();
+  return [...seasonStarts(date.getFullYear()), ...seasonStarts(date.getFullYear() + 1)].find(s => s > t);
+}
+
+const themePref = { season:"auto", motion:true };
+try{
+  const saved = JSON.parse(localStorage.getItem("frameit-theme") || "{}");
+  if(saved.season in THEMES) themePref.season = saved.season;
+  if(saved.motion === false) themePref.motion = false;
+}catch(e){}
+function saveThemePref(){ try{ localStorage.setItem("frameit-theme", JSON.stringify(themePref)); }catch(e){} }
+
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+function currentSeason(){ return themePref.season === "auto" ? seasonFor(new Date()) : themePref.season; }
+const CSS_VARS = {bg:"--bg",panel:"--panel",line:"--line",text:"--text",muted:"--muted",accent:"--accent",accentInk:"--accent-ink",
+  deep:"--deep",deepInk:"--deep-ink",deepMuted:"--deep-muted",stage:"--stage",btn:"--btn",btnInk:"--btn-ink",pxEdge:"--px-edge",dropLine:"--drop-line"};
+function applyTheme(){
+  const theme = THEMES[currentSeason()], t = theme[darkQuery.matches ? "dark" : "light"];
+  const root = document.documentElement, set = ICON_SETS[theme.icons];
+  for(const k in CSS_VARS) root.style.setProperty(CSS_VARS[k], t[k]);
+  set.ui.forEach(([n,c], i) => root.style.setProperty(`--icon-${i+1}`, pixelIcon(n, c)));
+  set.fx.forEach(([n,c], i) => root.style.setProperty(`--fx-${i+1}`, pixelIcon(n, c)));
+  root.dataset.fx = theme.icons;
+  root.dataset.motion = themePref.motion ? "on" : "off";
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = t.bg);
+  if(window.renderThemeMenu) renderThemeMenu();
+}
+applyTheme();
+darkQuery.addEventListener("change", applyTheme);
+// Switch right at the next equinox/solstice if the page is still open (timers max out near 24 days, so re-check daily)
+(function scheduleSeasonChange(){
+  const wait = Math.min(nextSeasonChange(new Date()) - Date.now() + 1000, 86400e3);
+  setTimeout(() => { if(themePref.season === "auto") applyTheme(); scheduleSeasonChange(); }, Math.max(wait, 1000));
+})();
+</script>
 </head>
 <body>
 <div class="app">
   <main class="stage" id="stage">
+    <div class="particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a photo">
-      <strong>Drop your photo here</strong>
-      or click to choose one. JPEG, PNG or WebP.
+      <strong>Drop your photos here</strong>
+      or click to choose. Pick several to frame them all at once.<br>JPEG, PNG or WebP.
+    </div>
+    <div class="batchbar" id="batchbar" hidden>
+      <button id="prevPhoto" aria-label="Previous photo">‹</button>
+      <span id="batchText" aria-live="polite"></span>
+      <button id="nextPhoto" aria-label="Next photo">›</button>
     </div>
     <canvas id="cv" aria-label="Preview"></canvas>
-    <input type="file" id="file" accept="image/jpeg,image/png,image/webp" hidden>
+    <div class="zoombar" title="Ctrl + scroll to zoom, drag to move, double-click for 100%">
+      <button id="zout" aria-label="Zoom out">−</button>
+      <span id="zlevel" aria-live="polite">100%</span>
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zfit">Fit</button>
+      <button id="z100">100%</button>
+    </div>
+    <div class="palette" id="palette" popover role="dialog" aria-label="More colors"></div>
+    <input type="file" id="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
   </main>
 
   <aside>
     <h1>Frame it</h1>
+    <button class="gear" id="gear" popovertarget="settings" title="Settings" aria-label="Settings"><svg viewBox="0 0 10 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="4" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="2" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="1" y="8" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/></svg></button>
 
     <section>
       <h2>Size</h2>
@@ -102,9 +379,10 @@ button:focus-visible,input:focus-visible,.drop:focus-visible{outline:2px solid v
       <h2>Border color</h2>
       <div class="swatches" id="swatches">
         <button class="sw" data-c="#ffffff" style="background:#ffffff" aria-label="White"></button>
-        <button class="sw" data-c="#f2f0ec" style="background:#f2f0ec" aria-label="Warm white"></button>
         <button class="sw" data-c="#000000" style="background:#000000" aria-label="Black"></button>
-        <input type="color" id="custom" value="#6e4a3c" aria-label="Custom color">
+        <button class="picker" id="picker" popovertarget="palette" title="More colors" aria-label="More colors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
+        </button>
       </div>
     </section>
 
@@ -119,18 +397,24 @@ button:focus-visible,input:focus-visible,.drop:focus-visible{outline:2px solid v
     <section>
       <h2>File type</h2>
       <div class="seg" id="fmt">
-        <button data-f="jpg" aria-pressed="true">JPEG, for Instagram</button>
-        <button data-f="png" aria-pressed="false">PNG, lossless</button>
+        <button data-f="jpg" aria-pressed="true">JPEG</button>
+        <button data-f="png" aria-pressed="false">PNG</button>
       </div>
     </section>
 
     <p class="info" id="info">Add a photo to see the preview.</p>
 
-    <button class="secondary" id="another" hidden>Use another photo</button>
-    <button class="save" id="save" disabled>Save JPEG</button>
+    <div class="actions">
+      <button class="secondary" id="another" hidden>Use another photo</button>
+      <div class="save-wrap">
+        <button class="save" id="save" disabled>Save JPEG</button>
+        <div class="kitty" aria-hidden="true"><img alt="" src="data:image/webp;base64,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"></div>
+      </div>
+    </div>
     <p class="status" id="status" role="status"></p>
   </aside>
 </div>
+<div class="settings" id="settings" popover role="dialog" aria-label="Settings"></div>
 
 <script>
 const PRESETS = [
@@ -138,18 +422,18 @@ const PRESETS = [
   {id:"square", name:"Square", sub:"1:1 · 1080×1080", w:1080, h:1080},
   {id:"story", name:"Story", sub:"9:16 · 1080×1920", w:1080, h:1920},
   {id:"land", name:"Landscape", sub:"1.91:1 · 1080×566", w:1080, h:566},
-  {id:"orig", name:"Original ratio", sub:"1080 wide", w:1080, h:null},
-  {id:"origL", name:"Original, large", sub:"2048 long edge", w:null, h:null, long:2048},
-  {id:"full", name:"Full size", sub:"No resizing, all detail", w:null, h:null}
+  {id:"original", name:"Original", sub:"Full size, no resizing", w:null, h:null}
 ];
-const FREE = ["orig","origL","full"];
+const FREE = ["original"];
 
-const state = { preset:"post", bw:3, color:"#ffffff", mode:"fit", fmt:"jpg", img:null, name:"photo" };
+const state = { preset:"post", bw:3, color:"#ffffff", mode:"fit", fmt:"jpg", meta:"nogps", img:null, name:"photo", files:[], index:0, profile:"" };
 try{
   const saved = JSON.parse(localStorage.getItem("frameit-settings")||"null");
-  if(saved){ Object.assign(state, {preset:saved.preset||state.preset, bw:saved.bw ?? state.bw, color:saved.color||state.color, mode:saved.mode||state.mode, fmt:saved.fmt||state.fmt}); }
+  if(saved){ Object.assign(state, {preset:saved.preset||state.preset, bw:saved.bw ?? state.bw, color:saved.color||state.color, mode:saved.mode||state.mode, fmt:saved.fmt||state.fmt}); if(["keep","nogps","none"].includes(saved.meta)) state.meta = saved.meta; }
 }catch(e){}
-function persist(){ try{ localStorage.setItem("frameit-settings", JSON.stringify({preset:state.preset,bw:state.bw,color:state.color,mode:state.mode,fmt:state.fmt})); }catch(e){} }
+if(["orig","origL","full"].includes(state.preset)) state.preset = "original";
+if(!PRESETS.some(p => p.id===state.preset)) state.preset = "post";
+function persist(){ try{ localStorage.setItem("frameit-settings", JSON.stringify({preset:state.preset,bw:state.bw,color:state.color,mode:state.mode,fmt:state.fmt,meta:state.meta})); }catch(e){} }
 
 const $ = id => document.getElementById(id);
 const cv = $("cv"), ctx = cv.getContext("2d");
@@ -166,115 +450,612 @@ PRESETS.forEach(p=>{
 
 $("bw").oninput = e => { state.bw = parseFloat(e.target.value); sync(); };
 document.querySelectorAll(".sw").forEach(s => s.onclick = () => { state.color = s.dataset.c; sync(); });
-$("custom").oninput = e => { state.color = e.target.value; sync(); };
+const COLORS = [
+  ["#e0e0e0","Light grey"],["#9e9e9e","Grey"],["#616161","Dark grey"],["#f3e2cf","Cream"],["#6e4a3c","Cappuccino"],["#2f2220","Wood bark"],
+  ["#e53935","Red"],["#fb8c00","Orange"],["#fdd835","Yellow"],["#43a047","Green"],["#1e88e5","Blue"],["#8e24aa","Purple"],
+  ["#ef9a9a","Light red"],["#ffcc80","Light orange"],["#fff59d","Light yellow"],["#a5d6a7","Light green"],["#90caf9","Light blue"],["#ce93d8","Light purple"],
+  ["#b71c1c","Dark red"],["#e65100","Dark orange"],["#f9a825","Mustard"],["#1b5e20","Dark green"],["#0d47a1","Navy"],["#4a148c","Dark purple"]
+];
+const palette = $("palette");
+COLORS.forEach(([c, name]) => {
+  const b = document.createElement("button");
+  b.className = "pc"; b.dataset.c = c; b.style.background = c; b.title = name; b.setAttribute("aria-label", name);
+  b.onclick = () => { state.color = c; palette.hidePopover(); sync(); };
+  palette.appendChild(b);
+});
+palette.addEventListener("toggle", e => {
+  if(e.newState !== "open") return;
+  const r = $("picker").getBoundingClientRect(), pw = palette.offsetWidth, ph = palette.offsetHeight;
+  const left = Math.max(8, Math.min(r.left, innerWidth - pw - 8));
+  const top = r.bottom + 8 + ph <= innerHeight ? r.bottom + 8 : Math.max(8, r.top - ph - 8);
+  palette.style.left = left + "px"; palette.style.top = top + "px";
+});
 document.querySelectorAll("#mode button").forEach(b => b.onclick = () => { state.mode = b.dataset.m; sync(); });
 document.querySelectorAll("#fmt button").forEach(b => b.onclick = () => { state.fmt = b.dataset.f; sync(); });
 
-function computeLayout(){
-  const img = state.img, p = PRESETS.find(x=>x.id===state.preset);
-  const iw0 = img.naturalWidth, ih0 = img.naturalHeight, ar = ih0/iw0;
+function computeLayout(iw0 = state.iw, ih0 = state.ih){
+  const p = PRESETS.find(x=>x.id===state.preset);
   let W, H, b;
-  if(p.id==="full"){
+  if(p.id==="original"){
+    // keep the photo at its exact pixel size; border is bw% of the final width
     const pct = state.bw/100;
-    W = Math.round(iw0/(1-2*pct));
-    b = Math.round(W*pct);
-    H = Math.round((W-2*b)*ar) + 2*b;
-  } else if(p.id==="orig" || p.id==="origL"){
-    if(p.id==="orig"){ W = 1080; }
-    else { W = ar >= 1 ? null : 2048; }
-    if(W===null){ // portrait large: long edge is height
-      // solve for W so that H = 2048
-      // H = (W-2b)*ar + 2b with b = round(W*pct)
-      const pct = state.bw/100;
-      W = Math.round(2048 / (ar + 2*pct*(1-ar)));
-    }
-    b = Math.round(W*state.bw/100);
-    const innerW = W-2*b;
-    H = Math.round(innerW*ar) + 2*b;
+    b = Math.round(iw0*pct/(1-2*pct));
+    W = iw0 + 2*b; H = ih0 + 2*b;
   } else {
     W = p.w; H = p.h; b = Math.round(W*state.bw/100);
   }
   return {W,H,b};
 }
 
-function render(){
-  if(!state.img) return;
-  const {W,H,b} = computeLayout();
-  cv.width = W; cv.height = H;
-  ctx.fillStyle = state.color; ctx.fillRect(0,0,W,H);
-  const img = state.img, iw = img.naturalWidth, ih = img.naturalHeight;
+// Draws the framed photo onto any canvas: the preview, or a fresh one when saving
+function drawFrame(g, src, iw, ih, {W,H,b}){
+  g.fillStyle = state.color; g.fillRect(0,0,W,H);
   const bx = W-2*b, by = H-2*b;
   const scale = state.mode==="fit" ? Math.min(bx/iw, by/ih) : Math.max(bx/iw, by/ih);
   const dw = iw*scale, dh = ih*scale;
   const dx = b + (bx-dw)/2, dy = b + (by-dh)/2;
-  ctx.save();
-  ctx.beginPath(); ctx.rect(b,b,bx,by); ctx.clip();
-  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, dx, dy, dw, dh);
-  ctx.restore();
-  const big = W*H > 16e6 ? " Large file, may take a moment." : "";
-  $("info").textContent = `Output ${W} × ${H} px, border ${b} px, ${state.fmt==="png"?"PNG lossless":"JPEG 92%"}.${big}`;
+  g.save();
+  g.beginPath(); g.rect(b,b,bx,by); g.clip();
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.drawImage(src, dx, dy, dw, dh);
+  g.restore();
+}
+
+// The preview never needs more than 16 MP (more than any screen shows, and iPhone/iPad Safari's canvas
+// limit). Saved files are still made at full size.
+const PREVIEW_MAX_PX = 16e6;
+const scaleLayout = (L, s) => s >= 1 ? L : { W: Math.round(L.W*s), H: Math.round(L.H*s), b: Math.round(L.b*s) };
+function render(){
+  if(!state.img) return;
+  const L = computeLayout(), {W,H,b} = L, P = scaleLayout(L, Math.sqrt(PREVIEW_MAX_PX / (W*H)));
+  const resized = state.outW !== W || state.outH !== H;
+  state.outW = W; state.outH = H;
+  cv.width = P.W; cv.height = P.H;
+  drawFrame(ctx, previewSource(), state.iw, state.ih, P);
+  const big = W*H > 16e6 ? " · large file, may take a moment" : "";
+  const profile = state.profile ? ` · ${state.profile}` : "";
+  $("info").textContent = `${W} × ${H} px · border ${b} px · ${state.fmt==="png"?"PNG":"JPEG"}${profile}${big}`;
+  if(resized) resetView(); else showZoom();
 }
 
 function sync(){
   document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.id===state.preset));
   document.querySelectorAll(".sw").forEach(s => s.setAttribute("aria-pressed", s.dataset.c===state.color));
+  const custom = ![...document.querySelectorAll(".sw")].some(s => s.dataset.c===state.color), picker = $("picker");
+  picker.classList.toggle("active", custom);
+  picker.style.background = custom ? state.color : "";
+  document.querySelectorAll(".pc").forEach(b => b.setAttribute("aria-pressed", b.dataset.c===state.color));
+  if(custom){
+    const n = parseInt(state.color.slice(1),16), lum = (0.299*(n>>16) + 0.587*(n>>8&255) + 0.114*(n&255))/255;
+    picker.style.color = lum > 0.55 ? "#2f2220" : "#ffffff";
+  } else picker.style.color = "";
   document.querySelectorAll("#mode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.m===state.mode));
   $("bw").value = state.bw; $("bwv").textContent = state.bw + "%";
   const p = PRESETS.find(x=>x.id===state.preset);
   document.querySelector("#mode").style.opacity = FREE.includes(p.id) ? .45 : 1;
   document.querySelectorAll("#fmt button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f===state.fmt));
-  $("save").textContent = state.fmt==="png" ? "Save PNG (lossless)" : "Save JPEG";
+  const n = state.files.length, kind = state.fmt==="png" ? "PNG" : "JPEG";
+  $("save").textContent = n > 1 ? `Save ${n} ${kind}s` : `Save ${kind}`;
+  $("another").textContent = n > 1 ? "Other photos" : "Use another photo";
   persist(); render();
 }
 
-// Loading
-function loadFile(f){
-  if(!f) return;
-  if(!/^image\/(jpeg|png|webp)$/.test(f.type)){
-    $("status").textContent = "That file type won't open here. Export a JPEG from your editor and try again.";
+// Loading: pick one photo or many. The first one is previewed; the same settings apply to all.
+function loadFiles(list){
+  const files = [...list].filter(f => /^image\/(jpeg|png|webp)$/.test(f.type)), skipped = list.length - files.length;
+  if(!files.length){
+    if(list.length) $("status").textContent = "That file type won't open here. Export a JPEG from your editor and try again.";
     return;
   }
-  const url = URL.createObjectURL(f);
-  const img = new Image();
-  img.onload = () => {
-    state.img = img; state.name = f.name.replace(/\.[^.]+$/,"");
-    $("stage").classList.add("has-img");
-    $("save").disabled = false; $("another").hidden = false;
-    $("status").textContent = "";
-    sync();
-  };
-  img.onerror = () => { $("status").textContent = "Couldn't read that photo. Try exporting it again as JPEG."; };
-  img.src = url;
+  for(const f of [...previews.keys()]) forgetPreview(f);
+  state.files = files;
+  showPhoto(0, skipped ? `Skipped ${skipped} file${skipped > 1 ? "s" : ""} that ${skipped > 1 ? "aren't" : "isn't"} JPEG, PNG or WebP.` : "");
 }
+// Fast switching: every photo gets a ready-to-draw preview copy of up to 6 MP (sharper than any Instagram
+// size, even at 100% zoom), and the next and previous photos are prepared in the background.
+const QUICK_PX = 6e6, previews = new Map();
+const shrink = (src, w, h, maxPx) => {
+  const s = Math.min(1, Math.sqrt(maxPx / (w*h)));
+  return createImageBitmap(src, s < 1 ? { resizeWidth: Math.round(w*s), resizeHeight: Math.round(h*s), resizeQuality:"high" } : {});
+};
+// Unpacks off the main thread where the browser can (keeps the page responsive), upright as shown
+async function decodeBitmap(file){
+  try{ return await createImageBitmap(file, { imageOrientation:"from-image" }); }
+  catch(e){ return createImageBitmap(await decodeImage(file)); }
+}
+async function shrunkCopy(file, maxPx){
+  const full = await decodeBitmap(file);
+  try{ return { bmp: await shrink(full, full.width, full.height, maxPx), iw: full.width, ih: full.height }; }
+  finally{ full.close(); }
+}
+function preparePreview(file){
+  if(!previews.has(file)) previews.set(file, (async () => {
+    const [{ bmp, iw, ih }, meta] = await Promise.all([shrunkCopy(file, QUICK_PX),
+      file.slice(0, 1 << 20).arrayBuffer().then(b => readMeta(new Uint8Array(b)))]);  // photo info sits at the start
+    return { file, iw, ih, quick: bmp, profile: isWideGamut(meta) ? profileLabel(meta.icc) : "" };
+  })());
+  return previews.get(file);
+}
+function forgetPreview(file){
+  const p = previews.get(file); previews.delete(file);
+  if(p) p.then(x => { x.quick.close(); if(x.sharp) x.sharp.close(); }, () => {});
+}
+// Original size can be much bigger than 6 MP: show the quick copy at once, then swap in a sharper one
+function previewSource(){
+  const p = state.preview;
+  if(state.preset === "original" && p.iw*p.ih > QUICK_PX){
+    if(p.sharp) return p.sharp;
+    p.sharpening ||= shrunkCopy(p.file, PREVIEW_MAX_PX).then(({ bmp }) => {
+      if(previews.has(p.file)) { p.sharp = bmp; if(state.preview === p) render(); } else bmp.close();
+    }, () => {});
+  }
+  return p.quick;
+}
+let showing = 0;
+async function showPhoto(i, note = ""){
+  const ticket = ++showing, file = state.files[i];
+  let p;
+  try{ p = await preparePreview(file); }
+  catch(e){ previews.delete(file); $("status").textContent = `Couldn't read ${file.name}. Try exporting it again as JPEG.`; return; }
+  if(ticket !== showing) return;                                     // a newer photo was picked meanwhile
+  state.index = i; state.preview = p; state.img = p.quick; state.iw = p.iw; state.ih = p.ih;
+  state.name = baseName(file); state.profile = p.profile;
+  resetView();
+  $("stage").classList.add("has-img");
+  $("save").disabled = false; $("another").hidden = false;
+  $("status").textContent = note;
+  const n = state.files.length;
+  $("batchbar").hidden = n < 2;
+  $("stage").classList.toggle("batch", n > 1);
+  $("batchText").textContent = (innerWidth < 821 ? `How all ${n} will look` : `This is how all ${n} photos will look`) + ` · ${i + 1}/${n}`;
+  sync();
+  // Keep this photo, the next two and the previous one ready (each copy is ~24 MB at most); free the rest
+  const keep = new Set([i, i + 1, i + 2, i - 1].map(k => state.files[(k + n) % n]));
+  for(const f of [...previews.keys()]) if(!keep.has(f)) forgetPreview(f);
+  keep.forEach(f => preparePreview(f).catch(() => previews.delete(f)));
+}
+$("prevPhoto").onclick = () => showPhoto((state.index - 1 + state.files.length) % state.files.length);
+$("nextPhoto").onclick = () => showPhoto((state.index + 1) % state.files.length);
 $("drop").onclick = () => $("file").click();
 $("drop").onkeydown = e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("file").click(); } };
 $("another").onclick = () => $("file").click();
-$("file").onchange = e => loadFile(e.target.files[0]);
+$("file").onchange = e => { loadFiles(e.target.files); e.target.value = ""; };
 const stage = $("stage");
 ["dragenter","dragover"].forEach(ev => stage.addEventListener(ev, e => { e.preventDefault(); stage.classList.add("dragging"); }));
 ["dragleave","drop"].forEach(ev => stage.addEventListener(ev, e => { e.preventDefault(); stage.classList.remove("dragging"); }));
-stage.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
+stage.addEventListener("drop", e => loadFiles(e.dataTransfer.files));
 
-// Saving (standard browser download)
-$("save").onclick = () => {
+$("save").onclick = () => saveAll();
+
+// Zoom: Ctrl/⌘ + scroll (or trackpad pinch) zooms at the cursor, drag to move around, double-click to toggle 100%
+const view = { z:1, x:0, y:0 };
+const fitScale = () => cv.offsetWidth * devicePixelRatio / (state.outW || cv.width);  // screen pixels per saved pixel when fitted
+function showZoom(){
+  cv.style.transform = view.z > 1 ? `translate(${view.x}px,${view.y}px) scale(${view.z})` : "";
+  stage.classList.toggle("zoomed", view.z > 1);
+  const pct = Math.round(fitScale() * view.z * 100);
+  $("zlevel").textContent = (pct > 0 ? pct : 100) + "%";
+}
+function resetView(){ view.z = 1; view.x = view.y = 0; showZoom(); }
+function zoomTo(z, cx, cy){
   if(!state.img) return;
-  const p = PRESETS.find(x=>x.id===state.preset);
-  const fname = `${state.name}-${p.id}-${state.bw}pct.${state.fmt}`;
-  const mime = state.fmt==="png" ? "image/png" : "image/jpeg";
-  $("status").textContent = "Preparing file…";
-  cv.toBlob(blob => {
-    if(!blob){ $("status").textContent = "Couldn't create the file."; return; }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = fname;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    $("status").textContent = "Saved " + fname;
-  }, mime, 0.92);
-};
+  const r = cv.getBoundingClientRect(), mx = r.left + r.width/2, my = r.top + r.height/2;
+  if(cx === undefined){ cx = mx; cy = my; }
+  z = Math.min(Math.max(8, 4 / fitScale()), Math.max(1, z));       // up to 400% of real pixels
+  const ux = (cx - mx) / view.z, uy = (cy - my) / view.z;           // keep the point under the cursor in place
+  view.x += cx - ux*z - mx; view.y += cy - uy*z - my; view.z = z;
+  const ex = cv.offsetWidth * (z-1) / 2, ey = cv.offsetHeight * (z-1) / 2;
+  view.x = Math.min(ex, Math.max(-ex, view.x)); view.y = Math.min(ey, Math.max(-ey, view.y));
+  showZoom();
+}
+stage.addEventListener("wheel", e => {
+  if(!state.img || !(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  zoomTo(view.z * Math.exp(-e.deltaY * 0.002), e.clientX, e.clientY);
+}, { passive:false });
+let drag = null;
+cv.addEventListener("pointerdown", e => {
+  if(view.z <= 1) return;
+  drag = { x: e.clientX - view.x, y: e.clientY - view.y };
+  cv.setPointerCapture(e.pointerId); stage.classList.add("panning");
+});
+cv.addEventListener("pointermove", e => {
+  if(!drag) return;
+  const ex = cv.offsetWidth * (view.z-1) / 2, ey = cv.offsetHeight * (view.z-1) / 2;
+  view.x = Math.min(ex, Math.max(-ex, e.clientX - drag.x)); view.y = Math.min(ey, Math.max(-ey, e.clientY - drag.y));
+  showZoom();
+});
+["pointerup","pointercancel"].forEach(ev => cv.addEventListener(ev, () => { drag = null; stage.classList.remove("panning"); }));
+cv.addEventListener("dblclick", e => zoomTo(view.z > 1 ? 1 : 1 / fitScale(), e.clientX, e.clientY));
+$("zout").onclick = () => zoomTo(view.z / 1.25);
+$("zin").onclick = () => zoomTo(view.z * 1.25);
+$("zfit").onclick = () => zoomTo(1);
+$("z100").onclick = () => zoomTo(1 / fitScale());
+addEventListener("resize", () => { if(state.img) zoomTo(view.z); });
 
 sync();
+</script>
+<script>
+// ===== Reading and writing photo files: keeps colors exact and photo info (copyright, camera) on request =====
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for(let n = 0; n < 256; n++){ let c = n; for(let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+  return t;
+})();
+function crc32(bytes){ let c = 0xffffffff; for(const b of bytes) c = CRC_TABLE[(c ^ b) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+const enc = new TextEncoder(), latin1 = new TextDecoder("latin1"), utf8 = new TextDecoder();
+const startsWith = (bytes, at, text) => [...text].every((ch, i) => bytes[at + i] === ch.charCodeAt(0));
+const concat = parts => { const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0)); let o = 0; for(const p of parts){ out.set(p, o); o += p.length; } return out; };
+const view32 = bytes => new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+async function zlib(bytes, inflate){ // PNG stores profiles and text in zlib ("deflate") format
+  const stream = new Blob([bytes]).stream().pipeThrough(inflate ? new DecompressionStream("deflate") : new CompressionStream("deflate"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+// Pull EXIF, XMP, IPTC and the color profile out of a JPEG, PNG or WebP file
+async function readMeta(bytes){
+  const meta = { exif:null, xmp:null, iptc:null, icc:null }, dv = view32(bytes);
+  try{
+    if(bytes[0] === 0xFF && bytes[1] === 0xD8){
+      const icc = [];
+      for(let o = 2; o + 4 <= bytes.length && bytes[o] === 0xFF; ){
+        const m = bytes[o + 1];
+        if(m === 0xD8 || m === 0x01 || (m >= 0xD0 && m <= 0xD7)){ o += 2; continue; }
+        if(m === 0xDA || m === 0xD9) break;
+        const p = o + 4, end = o + 2 + dv.getUint16(o + 2);
+        if(m === 0xE1 && startsWith(bytes, p, "Exif\0\0")) meta.exif = bytes.slice(p + 6, end);
+        else if(m === 0xE1 && startsWith(bytes, p, "http://ns.adobe.com/xap/1.0/\0")) meta.xmp = utf8.decode(bytes.subarray(p + 29, end));
+        else if(m === 0xE2 && startsWith(bytes, p, "ICC_PROFILE\0")) icc[bytes[p + 12]] = bytes.slice(p + 14, end);
+        else if(m === 0xED && startsWith(bytes, p, "Photoshop 3.0\0")) meta.iptc = bytes.slice(p, end);
+        o = end;
+      }
+      if(icc.length) meta.icc = concat(icc.filter(Boolean));
+    } else if(startsWith(bytes, 0, "\x89PNG")){
+      for(let o = 8; o + 12 <= bytes.length; ){
+        const len = dv.getUint32(o), type = latin1.decode(bytes.subarray(o + 4, o + 8)), d = bytes.subarray(o + 8, o + 8 + len);
+        if(type === "eXIf") meta.exif = d.slice();
+        else if(type === "iCCP") meta.icc = await zlib(d.subarray(d.indexOf(0) + 2), true);
+        else if(type === "iTXt" && startsWith(d, 0, "XML:com.adobe.xmp\0")){
+          let q = d.indexOf(0, 20) + 1; q = d.indexOf(0, q) + 1;         // skip language and translated keyword
+          meta.xmp = utf8.decode(d[18] ? await zlib(d.subarray(q), true) : d.subarray(q));
+        }
+        if(type === "IEND") break;
+        o += 12 + len;
+      }
+    } else if(startsWith(bytes, 0, "RIFF") && startsWith(bytes, 8, "WEBP")){
+      for(let o = 12; o + 8 <= bytes.length; ){
+        const type = latin1.decode(bytes.subarray(o, o + 4)), len = dv.getUint32(o + 4, true), d = bytes.subarray(o + 8, o + 8 + len);
+        if(type === "EXIF") meta.exif = startsWith(d, 0, "Exif\0\0") ? d.slice(6) : d.slice();
+        else if(type === "XMP ") meta.xmp = utf8.decode(d);
+        else if(type === "ICCP") meta.icc = d.slice();
+        o += 8 + len + (len & 1);
+      }
+    }
+  }catch(e){ console.warn("Couldn't read photo info", e); }
+  return meta;
+}
+
+// The color profile's name, like "Adobe RGB (1998)" or "Display P3"
+function iccName(icc){
+  try{
+    const dv = view32(icc);
+    for(let i = 0, n = dv.getUint32(128); i < n; i++){
+      const e = 132 + i * 12;
+      if(latin1.decode(icc.subarray(e, e + 4)) !== "desc") continue;
+      const o = dv.getUint32(e + 4), type = latin1.decode(icc.subarray(o, o + 4));
+      if(type === "desc") return latin1.decode(icc.subarray(o + 12, o + 12 + dv.getUint32(o + 8))).replace(/\0/g, "").trim();
+      if(type === "mluc") return new TextDecoder("utf-16be").decode(icc.subarray(o + dv.getUint32(o + 24), o + dv.getUint32(o + 24) + dv.getUint32(o + 20))).trim();
+    }
+  }catch(e){}
+  return "";
+}
+const isWideGamut = meta => !!meta.icc && !/srgb/i.test(iccName(meta.icc));
+function profileLabel(icc){ // short name for the info line
+  const name = iccName(icc);
+  if(/adobe|a98/i.test(name)) return "Adobe RGB";
+  if(/p3/i.test(name)) return "Display P3";
+  if(/prophoto|romm/i.test(name)) return "ProPhoto RGB";
+  if(/2020/.test(name)) return "Rec. 2020";
+  return name.length > 22 ? "Wide-gamut" : name || "Wide-gamut";
+}
+
+// Copy of the EXIF block, fixed up for the new file: upright orientation, new size, no stale thumbnail,
+// and (if asked) the GPS block wiped. Returns null rather than risk writing broken EXIF.
+const TIFF_SIZES = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
+function cleanExif(tiff, W, H, dropGps){
+  try{
+    const t = tiff.slice(), dv = view32(t), le = t[0] === 0x49;
+    if(!le && t[0] !== 0x4D) return null;
+    const u16 = o => dv.getUint16(o, le), u32 = o => dv.getUint32(o, le);
+    const entries = ifd => Array.from({ length: u16(ifd) }, (_, i) => ifd + 2 + i * 12);
+    const find = (ifd, tag) => entries(ifd).find(e => u16(e) === tag);
+    const wipe = ifd => {                                            // zero an IFD and any data it points to
+      for(const e of entries(ifd)){ const size = (TIFF_SIZES[u16(e + 2)] || 1) * u32(e + 4); if(size > 4) t.fill(0, u32(e + 8), u32(e + 8) + size); }
+      t.fill(0, ifd, ifd + 2 + u16(ifd) * 12 + 4);
+    };
+    const ifd0 = u32(4), next = ifd0 + 2 + u16(ifd0) * 12;
+    const orient = find(ifd0, 0x0112);
+    if(orient) dv.setUint16(orient + 8, 1, le);                      // pixels are already turned upright
+    const ifd1 = u32(next);
+    if(ifd1){                                                        // old thumbnail shows the unframed photo
+      const off = find(ifd1, 0x0201), len = find(ifd1, 0x0202);
+      if(off && len) t.fill(0, u32(off + 8), u32(off + 8) + u32(len + 8));
+      wipe(ifd1); dv.setUint32(next, 0, le);
+    }
+    const exifPtr = find(ifd0, 0x8769);
+    if(exifPtr){
+      const ex = u32(exifPtr + 8);
+      for(const [tag, v] of [[0xA002, W], [0xA003, H]]){
+        const e = find(ex, tag);
+        if(e && u16(e + 2) === 4) dv.setUint32(e + 8, v, le);
+        else if(e && u16(e + 2) === 3 && v < 65536) dv.setUint16(e + 8, v, le);
+      }
+    }
+    const gpsPtr = find(ifd0, 0x8825);
+    if(gpsPtr && dropGps) wipe(u32(gpsPtr + 8));                     // leaves an empty GPS block: no coordinates
+    return t;
+  }catch(e){ return null; }
+}
+function cleanXmp(xmp, dropGps){
+  let x = xmp.replace(/(tiff:Orientation=")\d(")/g, (m, a, b) => a + "1" + b)
+             .replace(/(<tiff:Orientation>)\d(<\/tiff:Orientation>)/g, (m, a, b) => a + "1" + b);
+  if(dropGps) x = x.replace(/\s+exif:GPS\w+="[^"]*"/g, "")
+                   .replace(/<exif:GPS\w+[^>]*\/>/g, "")
+                   .replace(/<exif:(GPS\w+)[^>]*>[\s\S]*?<\/exif:\1>/g, "");
+  return x;
+}
+
+// JPEG: insert our segments after the browser's JFIF header
+const jpegSegment = (marker, payload) => concat([new Uint8Array([0xFF, marker, (payload.length + 2) >> 8, (payload.length + 2) & 255]), payload]);
+function jpegMeta(info, icc){
+  const segs = [];
+  if(info.exif && info.exif.length + 8 <= 65535) segs.push(jpegSegment(0xE1, concat([enc.encode("Exif\0\0"), info.exif])));
+  if(info.xmp){ const x = concat([enc.encode("http://ns.adobe.com/xap/1.0/\0"), enc.encode(info.xmp)]); if(x.length + 2 <= 65535) segs.push(jpegSegment(0xE1, x)); }
+  if(icc){
+    const n = Math.ceil(icc.length / 65519);
+    for(let i = 0; i < n; i++) segs.push(jpegSegment(0xE2, concat([enc.encode("ICC_PROFILE\0"), new Uint8Array([i + 1, n]), icc.subarray(i * 65519, (i + 1) * 65519)])));
+  }
+  if(info.iptc && info.iptc.length + 2 <= 65535) segs.push(jpegSegment(0xED, info.iptc));
+  return segs;
+}
+function writeJpeg(bytes, segments, replaceIcc){
+  const dv = view32(bytes), head = [bytes.subarray(0, 2)], rest = [];
+  let o = 2;
+  while(o + 4 <= bytes.length && bytes[o] === 0xFF && bytes[o + 1] >= 0xE0 && bytes[o + 1] <= 0xEF){
+    const seg = bytes.subarray(o, o + 2 + dv.getUint16(o + 2));
+    if(bytes[o + 1] === 0xE0) head.push(seg);
+    else if(!(replaceIcc && bytes[o + 1] === 0xE2 && startsWith(bytes, o + 4, "ICC_PROFILE\0"))) rest.push(seg);
+    o += seg.length;
+  }
+  return concat([...head, ...segments, ...rest, bytes.subarray(o)]);
+}
+
+// PNG: insert our chunks right after the header
+function pngChunk(type, data){
+  const out = new Uint8Array(12 + data.length), dv = view32(out);
+  dv.setUint32(0, data.length); out.set(enc.encode(type), 4); out.set(data, 8);
+  dv.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length)));
+  return out;
+}
+async function writePng(bytes, info, icc){
+  const dv = view32(bytes), ours = [], out = [bytes.subarray(0, 8)];
+  if(icc) ours.push(pngChunk("iCCP", concat([enc.encode("ICC Profile\0\0"), await zlib(icc)])));
+  if(info.exif) ours.push(pngChunk("eXIf", info.exif));
+  if(info.xmp) ours.push(pngChunk("iTXt", concat([enc.encode("XML:com.adobe.xmp\0\0\0\0\0"), enc.encode(info.xmp)])));
+  for(let o = 8; o + 12 <= bytes.length; ){
+    const len = dv.getUint32(o), type = latin1.decode(bytes.subarray(o + 4, o + 8));
+    if(!(icc && ["iCCP", "sRGB", "gAMA", "cHRM"].includes(type))) out.push(bytes.subarray(o, o + 12 + len));
+    if(type === "IHDR") out.push(...ours);
+    o += 12 + len;
+  }
+  return concat(out);
+}
+
+// ===== Saving =====
+const baseName = file => file.name.replace(/\.[^.]+$/, "") || "photo";
+async function decodeImage(file){ // as the browser shows it: upright, colors converted for the screen
+  const url = URL.createObjectURL(file), img = new Image();
+  try{ img.src = url; await img.decode(); return img; } finally { URL.revokeObjectURL(url); }
+}
+// For wide-gamut photos (Adobe RGB, Display P3…): read the pixel values without converting them, so the
+// original color profile can be attached to the saved file unchanged. Only used if we can confirm the
+// browser really skipped the conversion and kept the photo upright; otherwise returns null.
+async function rawPixels(file, img){
+  let raw;
+  try{ raw = await createImageBitmap(file, { colorSpaceConversion:"none", imageOrientation:"from-image" }); }catch(e){ return null; }
+  if(raw.width !== img.naturalWidth || raw.height !== img.naturalHeight){ raw.close(); return null; }
+  const sample = src => {
+    const c = document.createElement("canvas"); c.width = c.height = 48;
+    const g = c.getContext("2d", { willReadFrequently:true }); g.drawImage(src, 0, 0, 48, 48);
+    return g.getImageData(0, 0, 48, 48).data;
+  };
+  const a = sample(raw), b = sample(img);
+  let diff = 0;
+  for(let i = 0; i < a.length; i += 4) diff += Math.abs(a[i]-b[i]) + Math.abs(a[i+1]-b[i+1]) + Math.abs(a[i+2]-b[i+2]);
+  const mean = diff / (a.length / 4 * 3);
+  if(mean > 0.3 && mean < 30) return raw;   // slightly different = unconverted values of the same upright photo
+  raw.close(); return null;
+}
+async function exportPhoto(file){
+  const bytes = new Uint8Array(await file.arrayBuffer()), meta = await readMeta(bytes), img = await decodeImage(file);
+  const wide = isWideGamut(meta), raw = wide ? await rawPixels(file, img) : null;
+  const full = computeLayout(img.naturalWidth, img.naturalHeight), mime = state.fmt === "png" ? "image/png" : "image/jpeg";
+  // Full size first. Some browsers can't make images that big (iPhone/iPad Safari stops near 16 MP):
+  // then save the largest size that works, and say so, rather than failing.
+  let L = full, blob = null;
+  for(const limit of [Infinity, 16e6, 4e6]){
+    L = scaleLayout(full, Math.sqrt(limit / (full.W*full.H)));
+    if(limit !== Infinity && L === full) break;
+    const c = document.createElement("canvas");
+    c.width = L.W; c.height = L.H;
+    // Exact: unconverted pixels + original profile. Fallback for wide photos: a Display P3 canvas, which the
+    // browser tags itself (keeps most of the extra colors). Normal sRGB photos need neither.
+    const g = c.getContext("2d", wide && !raw ? { colorSpace:"display-p3" } : {});
+    if(g){
+      drawFrame(g, raw || img, img.naturalWidth, img.naturalHeight, L);
+      blob = await new Promise(res => c.toBlob(res, mime, 0.92));
+    }
+    c.width = c.height = 0;
+    if(blob) break;
+  }
+  if(raw) raw.close();
+  if(!blob) throw new Error("Couldn't create the file");
+  let out = new Uint8Array(await blob.arrayBuffer());
+  const info = { exif:null, xmp:null, iptc:null };
+  if(state.meta !== "none"){
+    const dropGps = state.meta === "nogps";
+    info.exif = meta.exif && cleanExif(meta.exif, L.W, L.H, dropGps);
+    info.xmp = meta.xmp && cleanXmp(meta.xmp, dropGps);
+    info.iptc = meta.iptc;
+  }
+  const icc = raw ? meta.icc : null;  // the color profile is not personal info, so it's kept in every mode
+  out = state.fmt === "png" ? await writePng(out, info, icc) : writeJpeg(out, jpegMeta(info, icc), !!icc);
+  const result = new Blob([out], { type: mime });
+  result.smaller = L !== full;
+  return result;
+}
+function download(blob, name){
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+// Never overwrite: "photo.jpg" becomes "photo (2).jpg" if that name is already used
+function numbered(name, k){ const dot = name.lastIndexOf("."); return k < 2 ? name : `${name.slice(0, dot)} (${k})${name.slice(dot)}`; }
+function uniqueName(name, taken){
+  let k = 1; while(taken.has(numbered(name, k).toLowerCase())) k++;
+  taken.add(numbered(name, k).toLowerCase()); return numbered(name, k);
+}
+async function writeToFolder(folder, name, blob){
+  let k = 1;
+  for(;;){
+    try{ await folder.getFileHandle(numbered(name, k)); k++; }
+    catch(e){ if(e.name === "NotFoundError") break; throw e; }
+  }
+  const w = await (await folder.getFileHandle(numbered(name, k), { create:true })).createWritable();
+  await w.write(blob); await w.close();
+  return numbered(name, k);
+}
+// ZIP without compression (the photos are already compressed): one download for the whole batch
+async function makeZip(entries){
+  const parts = [], central = [], d = new Date();
+  const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  let offset = 0;
+  for(const { name, blob } of entries){
+    const nm = enc.encode(name), crc = crc32(new Uint8Array(await blob.arrayBuffer())), size = blob.size;
+    const h = new Uint8Array(30 + nm.length), hv = view32(h);
+    hv.setUint32(0, 0x04034b50, true); hv.setUint16(4, 20, true); hv.setUint16(6, 0x0800, true);   // 0x0800: UTF-8 names
+    hv.setUint16(10, time, true); hv.setUint16(12, date, true); hv.setUint32(14, crc, true);
+    hv.setUint32(18, size, true); hv.setUint32(22, size, true); hv.setUint16(26, nm.length, true); h.set(nm, 30);
+    const c = new Uint8Array(46 + nm.length), cd = view32(c);
+    cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true); cd.setUint16(8, 0x0800, true);
+    cd.setUint16(12, time, true); cd.setUint16(14, date, true); cd.setUint32(16, crc, true);
+    cd.setUint32(20, size, true); cd.setUint32(24, size, true); cd.setUint16(28, nm.length, true); cd.setUint32(42, offset, true); c.set(nm, 46);
+    parts.push(h, blob); central.push(c); offset += h.length + size;
+  }
+  const end = new Uint8Array(22), ev = view32(end);
+  ev.setUint32(0, 0x06054b50, true); ev.setUint16(8, entries.length, true); ev.setUint16(10, entries.length, true);
+  ev.setUint32(12, central.reduce((s, c) => s + c.length, 0), true); ev.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, end], { type:"application/zip" });
+}
+const META_NOTES = { keep:"photo info kept", nogps:"photo info kept, location removed", none:"photo info removed" };
+async function saveAll(){
+  const files = state.files, n = files.length;
+  if(!n) return;
+  // Several photos: pick a folder once and write them all there (Chrome, Edge), otherwise one ZIP.
+  // Either way it's a single save window, not one per photo.
+  let folder = null;
+  if(n > 1 && window.showDirectoryPicker){
+    try{ folder = await showDirectoryPicker({ id:"frame-it", mode:"readwrite", startIn:"pictures" }); }
+    catch(e){ if(e.name === "AbortError") return; }                    // cancelled: save nothing
+  }
+  $("save").disabled = $("another").disabled = true;
+  const taken = new Set();
+  let saved = 0, last = "", smaller = 0, zipped = [], zipBytes = 0, zipParts = 0;
+  // A new ZIP every ~1 GB keeps memory in check and stays far below the 4 GB ZIP format limit
+  const sendZip = async name => { download(await makeZip(zipped), name); zipped = []; zipBytes = 0; };
+  for(const [i, file] of files.entries()){
+    $("status").textContent = n > 1 ? `Framing ${i + 1} of ${n}…` : "Preparing file…";
+    try{
+      const blob = await exportPhoto(file);
+      const name = `${baseName(file)}-${state.preset}-${state.bw}pct.${state.fmt}`;
+      if(folder) last = await writeToFolder(folder, name, blob);      // checks the folder, so earlier photos count too
+      else { last = uniqueName(name, taken); n === 1 ? download(blob, last) : (zipped.push({ name:last, blob }), zipBytes += blob.size); }
+      saved++; if(blob.smaller) smaller++;
+      if(zipBytes > 1e9){ $("status").textContent = "Packing ZIP…"; await sendZip(`frame-it-photos-part${++zipParts}.zip`); }
+    }catch(e){ console.error(file.name, e); }
+  }
+  if(zipped.length){
+    $("status").textContent = "Packing ZIP…";
+    await sendZip(zipParts ? `frame-it-photos-part${++zipParts}.zip` : (zipParts = 1, `frame-it-${saved}-photos.zip`));
+  }
+  $("save").disabled = $("another").disabled = false;
+  const where = folder ? (folder.name ? ` to “${folder.name}”` : " to your folder") : zipParts > 1 ? ` in ${zipParts} ZIPs` : zipParts ? " in one ZIP" : "";
+  const what = n === 1 ? (saved ? `Saved ${last}` : "Couldn't create the file")
+             : `Saved ${saved === n ? n : `${saved} of ${n}`} photos${where}`;
+  const note = smaller ? ` · ${n === 1 ? "saved" : smaller + " saved"} smaller, this browser can't make one that big` : "";
+  $("status").textContent = saved ? `${what} · ${META_NOTES[state.meta]}${note}` : what;
+}
+</script>
+<script>
+// ===== Gear menu: season, falling icons, and what photo info goes into saved files =====
+const settingsEl = $("settings");
+function el(tag, cls, html){ const e = document.createElement(tag); if(cls) e.className = cls; if(html) e.innerHTML = html; return e; }
+function setThemePref(changes){ Object.assign(themePref, changes); saveThemePref(); applyTheme(); }
+
+function buildThemeMenu(){
+  settingsEl.append(el("h3", "", "Theme"));
+  const themes = el("div", "themes");
+  ["auto", ...Object.keys(THEMES)].forEach(key => {
+    const b = el("button", "tchip" + (key === "auto" ? " auto" : ""));
+    b.dataset.season = key;
+    b.innerHTML = `<span class="ticon"></span><span>${key === "auto" ? "Auto" : THEMES[key].label}</span>` + (key === "auto" ? "<small></small>" : "");
+    b.onclick = () => setThemePref({ season:key });
+    themes.append(b);
+  });
+  settingsEl.append(themes);
+
+  settingsEl.append(el("h3", "", "Falling icons"));
+  const motion = el("div", "seg motion");
+  motion.innerHTML = '<button data-v="on">On</button><button data-v="off">Off</button>';
+  motion.querySelectorAll("button").forEach(b => b.onclick = () => setThemePref({ motion: b.dataset.v === "on" }));
+  settingsEl.append(motion);
+
+  settingsEl.append(el("h3", "", "Photo info in saved files"));
+  const info = el("div", "seg photoinfo");
+  info.innerHTML = '<button data-meta="keep">Keep all</button><button data-meta="nogps">No location</button><button data-meta="none">Remove</button>';
+  info.querySelectorAll("button").forEach(b => b.onclick = () => { state.meta = b.dataset.meta; persist(); renderThemeMenu(); });
+  settingsEl.append(info, el("p", "metanote"));
+}
+const META_EXPLAIN = {
+  keep:  "Copyright, camera settings and GPS location are copied from your photos.",
+  nogps: "Copyright and camera settings are kept. GPS location is removed.",
+  none:  "Saved files contain no info from your photos."
+};
+
+function renderThemeMenu(){
+  const season = seasonFor(new Date());                              // what Auto would pick right now
+  settingsEl.querySelectorAll(".tchip").forEach(b => {
+    const key = b.dataset.season, shown = key === "auto" ? season : key;
+    b.setAttribute("aria-pressed", themePref.season === key);
+    b.querySelector(".ticon").style.backgroundImage = pixelIcon(...ICON_SETS[THEMES[shown].icons].ui[0]);
+    if(key === "auto") b.querySelector("small").textContent = "Now: " + THEMES[season].label;
+  });
+  settingsEl.querySelectorAll(".motion button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.v === "on") === themePref.motion));
+  settingsEl.querySelectorAll(".photoinfo button").forEach(b => b.setAttribute("aria-pressed", b.dataset.meta === state.meta));
+  settingsEl.querySelector(".metanote").textContent = META_EXPLAIN[state.meta];
+}
+
+settingsEl.addEventListener("toggle", e => {
+  if(e.newState !== "open") return;
+  const r = $("gear").getBoundingClientRect(), pw = settingsEl.offsetWidth, ph = settingsEl.offsetHeight;
+  settingsEl.style.left = Math.max(8, Math.min(r.right - pw, innerWidth - pw - 8)) + "px";
+  settingsEl.style.top = Math.max(8, Math.min(r.bottom + 12, innerHeight - ph - 8)) + "px";
+});
+
+buildThemeMenu();
+renderThemeMenu();
 </script>
 </body>
 </html>

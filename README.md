@@ -2,7 +2,7 @@
 
 Add clean borders to your photos and resize them for Instagram, in your browser.
 
-###  Use it: https://xarvulth.github.io/frame-it/
+### Use it: https://xarvulth.github.io/frame-it/
 
 ## Features
 
@@ -10,8 +10,9 @@ Add clean borders to your photos and resize them for Instagram, in your browser.
 - **Border width** as a percentage of the image width, from 0% to 15% in 0.5% steps
 - **Border colors**: white, black, or any custom color
 - **Photo placement**: *Show whole photo* (fit) or *Fill and crop* (fill)
-- **Original ratio** **Full size** (no resizing, all detail)
+- **Original**: full size, no resizing, all detail
 - **Export** as JPEG or PNG
+- **Several photos at once**: frame a whole batch with the same settings and save them all in one go
 - **And a cute kitty**
 
 ## License
